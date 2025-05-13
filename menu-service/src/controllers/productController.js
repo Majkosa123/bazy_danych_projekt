@@ -2,14 +2,13 @@ const Product = require("../models/sequelize/product");
 const Category = require("../models/sequelize/category");
 const ProductDetail = require("../models/mongoose/productDetail");
 
-// Pobierz wszystkie produkty
 exports.getAllProducts = async (req, res, next) => {
   try {
     const products = await Product.findAll({
       include: [
         {
           model: Category,
-          attributes: ["id", "name"], // Wybierz tylko potrzebne pola
+          attributes: ["id", "name"],
         },
       ],
     });
@@ -24,7 +23,6 @@ exports.getAllProducts = async (req, res, next) => {
   }
 };
 
-// Pobierz produkty z określonej kategorii
 exports.getProductsByCategory = async (req, res, next) => {
   try {
     const { categoryId } = req.params;
@@ -32,7 +30,7 @@ exports.getProductsByCategory = async (req, res, next) => {
     const products = await Product.findAll({
       where: {
         categoryId,
-        isAvailable: true, // Tylko dostępne produkty
+        isAvailable: true,
       },
       include: [
         {
@@ -52,12 +50,10 @@ exports.getProductsByCategory = async (req, res, next) => {
   }
 };
 
-// Pobierz szczegóły produktu (łącząc dane z PostgreSQL i MongoDB)
 exports.getProductDetails = async (req, res, next) => {
   try {
     const { productId } = req.params;
 
-    // Znajdź produkt w PostgreSQL
     const product = await Product.findByPk(productId, {
       include: [
         {
@@ -73,12 +69,10 @@ exports.getProductDetails = async (req, res, next) => {
       return next(error);
     }
 
-    // Znajdź szczegóły w MongoDB
     const productDetails = await ProductDetail.findOne({
       productId: productId,
     });
 
-    // Połącz dane i zwróć odpowiedź
     res.status(200).json({
       status: "success",
       data: {
