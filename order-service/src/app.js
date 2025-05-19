@@ -1,10 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const errorHandler = require("./middlewares/errorHandler");
 const rateLimit = require("express-rate-limit");
 const routes = require("./routes");
-
 const app = express();
 
 app.use(helmet());
@@ -17,18 +15,8 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use("/api/v1", routes);
-
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).json({ status: "ok", service: "order-service" });
 });
-
-app.use((req, res, next) => {
-  const error = new Error(`Nie znaleziono - ${req.originalUrl}`);
-  error.statusCode = 404;
-  next(error);
-});
-
-app.use(errorHandler);
 
 module.exports = app;
