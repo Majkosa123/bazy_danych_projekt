@@ -1,0 +1,32 @@
+# Dependencje
+node_modules/
+*/node_modules/
+**/node_modules/
+
+# Pliki środowiskowe
+.env
+*/.env
+**/.env
+
+# Logi
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Katalogi kompilacji
+dist/
+build/
+*/dist/
+*/build/
+
+# Cache
+.npm
+.eslintcache
+.cache
+
+# Lokalne pliki konfiguracyjne
+.DS_Store
+.idea/
+.vscode/
