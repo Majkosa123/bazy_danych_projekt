@@ -27,10 +27,10 @@ exports.getProductsByCategory = async (req, res, next) => {
   try {
     const { categoryId } = req.params;
 
+    // Pokazuje WSZYSTKIE produkty w kategorii (dostępne i niedostępne)
     const products = await Product.findAll({
       where: {
-        categoryId,
-        isAvailable: true,
+        categoryId: categoryId,
       },
       include: [
         {

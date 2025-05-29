@@ -154,6 +154,7 @@ button:disabled {
   text-decoration: none;
   color: var(--text-color);
   transition: transform 0.2s;
+  position: relative;
 }
 
 .category-card:hover,
@@ -161,10 +162,20 @@ button:disabled {
   transform: translateY(-5px);
 }
 
+/* Produkty niedostępne */
+.product-card.unavailable {
+  opacity: 0.7;
+}
+
+.product-card.unavailable:hover {
+  transform: translateY(-2px);
+}
+
 .category-image,
 .product-image {
   height: 150px;
   overflow: hidden;
+  position: relative;
 }
 
 .category-image img,
@@ -172,6 +183,52 @@ button:disabled {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Ikony dostępności */
+.availability-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.availability-badge.availability-available {
+  border: 2px solid #4caf50;
+}
+
+.availability-badge.availability-unavailable {
+  border: 2px solid #f44336;
+}
+
+/* Overlay dla niedostępnych produktów */
+.unavailable-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.unavailable-text {
+  background-color: #f44336;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
 
 .category-card h2,
@@ -182,16 +239,53 @@ button:disabled {
   margin-bottom: 0;
 }
 
+.product-name-unavailable {
+  color: #666;
+  text-decoration: line-through;
+}
+
 .product-info {
   padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-price-and-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .price {
   font-weight: bold;
   color: var(--primary-color);
+}
+
+.availability-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.availability-status.availability-available {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.availability-status.availability-unavailable {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.availability-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Product Details - ZAKTUALIZOWANE */
@@ -205,6 +299,7 @@ button:disabled {
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 30px;
   border-bottom: 1px solid #ddd;
   padding-bottom: 15px;
@@ -224,6 +319,26 @@ button:disabled {
 .header h1 {
   margin: 0;
   font-size: 24px;
+  flex: 1;
+}
+
+.availability-badge-header {
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.availability-badge-header.availability-available {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+.availability-badge-header.availability-unavailable {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #f44336;
 }
 
 .product-content {
@@ -261,6 +376,113 @@ button:disabled {
   font-weight: bold;
   color: var(--primary-color);
   margin-bottom: 25px;
+}
+
+/* Sekcja szczegółów produktu */
+.product-details-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.ingredients-section,
+.allergens-section,
+.nutrition-section {
+  margin-bottom: 20px;
+}
+
+.ingredients-section h3,
+.allergens-section h3,
+.nutrition-section h3 {
+  margin-bottom: 10px;
+  color: var(--dark-color);
+}
+
+.ingredients-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.ingredient {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  border: 1px solid #bbdefb;
+}
+
+.ingredient.allergen {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+  font-weight: bold;
+}
+
+.allergens-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.allergen-badge {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid #f44336;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.nutrition-item {
+  background-color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nutrition-label {
+  font-weight: bold;
+  color: #666;
+}
+
+.nutrition-value {
+  font-weight: bold;
+  color: var(--dark-color);
+}
+
+/* Ostrzeżenie dla niedostępnych produktów */
+.unavailable-warning {
+  background-color: #ffebee;
+  border: 2px solid #f44336;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.unavailable-warning h3 {
+  color: #c62828;
+  margin-bottom: 10px;
+}
+
+.unavailable-warning p {
+  color: #666;
 }
 
 /* Ingredients section */
@@ -441,6 +663,11 @@ button:disabled {
   background-color: #e6a600;
 }
 
+.add-to-cart-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 /* Cart */
 .cart-page {
   background-color: white;
@@ -582,6 +809,66 @@ button:disabled {
   margin-top: 5px;
 }
 
+/* Formularz adresu dostawy */
+.delivery-address-section {
+  margin-top: 20px;
+  padding: 20px;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  background-color: #fffdf5;
+}
+
+.delivery-address-section h3 {
+  margin-bottom: 15px;
+  color: var(--secondary-color);
+}
+
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--dark-color);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 188, 13, 0.2);
+}
+
+.required-note {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+  margin-top: 10px;
+}
+
 .table-number-input,
 .notes-input {
   margin-top: 20px;
@@ -712,5 +999,31 @@ button:disabled {
 
   .header h1 {
     font-size: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .availability-badge-header {
+    align-self: flex-end;
+  }
+
+  /* Mobile responsive for address form */
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nutrition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-price-and-status {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
   }
 }

@@ -35,6 +35,22 @@ function ProductList() {
     return isNaN(numPrice) ? "0.00" : numPrice.toFixed(2);
   };
 
+  const getAvailabilityIcon = (isAvailable) => {
+    if (isAvailable) {
+      return {
+        icon: "✅",
+        text: "Dostępny",
+        className: "availability-available",
+      };
+    } else {
+      return {
+        icon: "❌",
+        text: "Niedostępny",
+        className: "availability-unavailable",
+      };
+    }
+  };
+
   if (loading) return <Spinner />;
   if (error) return <div className="error-message">{error}</div>;
 
@@ -48,28 +64,64 @@ function ProductList() {
       </div>
 
       <div className="products-grid">
-        {products.map((product) => (
-          <Link
-            to={`/product/${product.id}`}
-            key={product.id}
-            className="product-card"
-          >
-            <div className="product-image">
-              <img
-                src={`/images/products/${product.id}.jpg`}
-                alt={product.name}
-                onError={(e) => {
-                  e.target.src =
-                    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
-                }}
-              />
-            </div>
-            <div className="product-info">
-              <h3>{product.name}</h3>
-              <p className="price">{formatPrice(product.price)} zł</p>
-            </div>
-          </Link>
-        ))}
+        {products.map((product) => {
+          const availability = getAvailabilityIcon(product.isAvailable);
+
+          return (
+            <Link
+              to={`/product/${product.id}`}
+              key={product.id}
+              className={`product-card ${
+                !product.isAvailable ? "unavailable" : ""
+              }`}
+            >
+              <div className="product-image">
+                <img
+                  src={`/images/products/${product.id}.jpg`}
+                  alt={product.name}
+                  onError={(e) => {
+                    e.target.src =
+                      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
+                  }}
+                />
+
+                {/* Ikona dostępności w prawym górnym rogu */}
+                <div className={`availability-badge ${availability.className}`}>
+                  <span className="availability-icon" title={availability.text}>
+                    {availability.icon}
+                  </span>
+                </div>
+
+                {/* Overlay dla niedostępnych produktów */}
+                {!product.isAvailable && (
+                  <div className="unavailable-overlay">
+                    <span className="unavailable-text">Niedostępny</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="product-info">
+                <h3
+                  className={
+                    !product.isAvailable ? "product-name-unavailable" : ""
+                  }
+                >
+                  {product.name}
+                </h3>
+                <div className="product-price-and-status">
+                  <p className="price">{formatPrice(product.price)} zł</p>
+                  <div
+                    className={`availability-status ${availability.className}`}
+                  >
+                    <span className="availability-text">
+                      {availability.icon} {availability.text}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {products.length === 0 && !loading && (

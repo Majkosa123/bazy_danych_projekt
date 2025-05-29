@@ -139,8 +139,31 @@ function ProductDetails() {
     );
   };
 
+  const getAvailabilityStatus = () => {
+    if (!product) return null;
+
+    if (product.isAvailable) {
+      return {
+        icon: "✅",
+        text: "Dostępny",
+        className: "availability-available",
+      };
+    } else {
+      return {
+        icon: "❌",
+        text: "Niedostępny",
+        className: "availability-unavailable",
+      };
+    }
+  };
+
   const handleAddToCart = () => {
     if (!product) return;
+
+    if (!product.isAvailable) {
+      setError("Ten produkt jest obecnie niedostępny.");
+      return;
+    }
 
     // Przygotuj customizacje
     const customizations = [];
@@ -218,6 +241,7 @@ function ProductDetails() {
 
   const basePrice = formatPrice(product.price);
   const totalPrice = calculateTotalPrice();
+  const availability = getAvailabilityStatus();
 
   return (
     <div className="product-details-page">
@@ -226,6 +250,15 @@ function ProductDetails() {
           ← Powrót
         </button>
         <h1>{product.name}</h1>
+        {availability && (
+          <div
+            className={`availability-badge-header ${availability.className}`}
+          >
+            <span>
+              {availability.icon} {availability.text}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="product-content">
@@ -244,271 +277,380 @@ function ProductDetails() {
           <p className="description">{product.description}</p>
           <p className="price">Cena bazowa: {basePrice.toFixed(2)} zł</p>
 
-          {/* CUSTOMIZACJE */}
-          <div
-            style={{
-              border: "2px solid #ffbc0d",
-              borderRadius: "12px",
-              padding: "20px",
-              margin: "20px 0",
-              backgroundColor: "#fffdf5",
-            }}
-          >
-            <h3 style={{ color: "#db0007", marginBottom: "15px" }}>
-              🎛️ Dostosuj swoje zamówienie
-            </h3>
-
-            {/* Rozmiar */}
-            {isApplicableOption("sizes") && (
-              <div style={{ marginBottom: "20px" }}>
-                <h4>📏 Rozmiar:</h4>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  {customizationOptions.sizes.map((size) => (
-                    <label
-                      key={size.id}
-                      style={{
-                        padding: "10px",
-                        border:
-                          selectedSize === size.id
-                            ? "2px solid #db0007"
-                            : "1px solid #ddd",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        backgroundColor:
-                          selectedSize === size.id ? "#fff5f5" : "white",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="size"
-                        value={size.id}
-                        checked={selectedSize === size.id}
-                        onChange={(e) => setSelectedSize(e.target.value)}
-                        style={{ marginRight: "8px" }}
-                      />
-                      {size.name}
-                      {size.priceModifier !== 0 && (
-                        <span style={{ fontSize: "12px", color: "#666" }}>
-                          {size.priceModifier > 0 ? " +" : " "}
-                          {size.priceModifier.toFixed(2)}zł
+          {/* INFORMACJE O SKŁADNIKACH I WARTOŚCIACH ODŻYWCZYCH */}
+          {product.details && (
+            <div className="product-details-section">
+              {/* Składniki */}
+              {product.details.ingredients &&
+                product.details.ingredients.length > 0 && (
+                  <div className="ingredients-section">
+                    <h3>🥘 Składniki:</h3>
+                    <div className="ingredients-list">
+                      {product.details.ingredients.map((ingredient, index) => (
+                        <span
+                          key={index}
+                          className={`ingredient ${
+                            ingredient.isAllergen ? "allergen" : ""
+                          }`}
+                        >
+                          {ingredient.name}
+                          {ingredient.isAllergen && " ⚠️"}
                         </span>
-                      )}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {/* Dodatki */}
-            {isApplicableOption("extras") && (
-              <div style={{ marginBottom: "20px" }}>
-                <h4>➕ Dodatki:</h4>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                    gap: "8px",
-                  }}
-                >
-                  {customizationOptions.extras.map((extra) => (
-                    <label
-                      key={extra.id}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "10px",
-                        border: addedExtras.includes(extra.id)
-                          ? "2px solid #4caf50"
-                          : "1px solid #ddd",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        backgroundColor: addedExtras.includes(extra.id)
-                          ? "#f8fff8"
-                          : "white",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={addedExtras.includes(extra.id)}
-                        onChange={() => toggleExtra(extra.id)}
-                        style={{ marginRight: "8px" }}
-                      />
-                      <span style={{ flex: 1 }}>{extra.name}</span>
-                      <span
+              {/* Alergeny */}
+              {product.details.allergens &&
+                product.details.allergens.length > 0 && (
+                  <div className="allergens-section">
+                    <h3>⚠️ Alergeny:</h3>
+                    <div className="allergens-list">
+                      {product.details.allergens.map((allergen, index) => (
+                        <span key={index} className="allergen-badge">
+                          ⚠️ {allergen}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Wartości odżywcze */}
+              {product.details.nutritionalValues && (
+                <div className="nutrition-section">
+                  <h3>📊 Wartości odżywcze (na porcję):</h3>
+                  <div className="nutrition-grid">
+                    {product.details.nutritionalValues.calories && (
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Kalorie:</span>
+                        <span className="nutrition-value">
+                          {product.details.nutritionalValues.calories} kcal
+                        </span>
+                      </div>
+                    )}
+                    {product.details.nutritionalValues.protein && (
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Białko:</span>
+                        <span className="nutrition-value">
+                          {product.details.nutritionalValues.protein} g
+                        </span>
+                      </div>
+                    )}
+                    {product.details.nutritionalValues.carbohydrates && (
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Cukry:</span>
+                        <span className="nutrition-value">
+                          {product.details.nutritionalValues.carbohydrates} g
+                        </span>
+                      </div>
+                    )}
+                    {product.details.nutritionalValues.fat && (
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Tłuszcze:</span>
+                        <span className="nutrition-value">
+                          {product.details.nutritionalValues.fat} g
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Ostrzeżenie dla niedostępnych produktów */}
+          {!product.isAvailable && (
+            <div className="unavailable-warning">
+              <h3>❌ Produkt obecnie niedostępny</h3>
+              <p>
+                Ten produkt nie jest obecnie dostępny. Sprawdź ponownie później
+                lub wybierz inny produkt.
+              </p>
+            </div>
+          )}
+
+          {/* CUSTOMIZACJE - tylko dla dostępnych produktów */}
+          {product.isAvailable && (
+            <div
+              style={{
+                border: "2px solid #ffbc0d",
+                borderRadius: "12px",
+                padding: "20px",
+                margin: "20px 0",
+                backgroundColor: "#fffdf5",
+              }}
+            >
+              <h3 style={{ color: "#db0007", marginBottom: "15px" }}>
+                🎛️ Dostosuj swoje zamówienie
+              </h3>
+
+              {/* Rozmiar */}
+              {isApplicableOption("sizes") && (
+                <div style={{ marginBottom: "20px" }}>
+                  <h4>📏 Rozmiar:</h4>
+                  <div
+                    style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+                  >
+                    {customizationOptions.sizes.map((size) => (
+                      <label
+                        key={size.id}
                         style={{
-                          fontSize: "12px",
-                          color: "#666",
-                          fontWeight: "bold",
+                          padding: "10px",
+                          border:
+                            selectedSize === size.id
+                              ? "2px solid #db0007"
+                              : "1px solid #ddd",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          backgroundColor:
+                            selectedSize === size.id ? "#fff5f5" : "white",
                         }}
                       >
-                        +{extra.priceModifier.toFixed(2)}zł
-                      </span>
-                    </label>
-                  ))}
+                        <input
+                          type="radio"
+                          name="size"
+                          value={size.id}
+                          checked={selectedSize === size.id}
+                          onChange={(e) => setSelectedSize(e.target.value)}
+                          style={{ marginRight: "8px" }}
+                        />
+                        {size.name}
+                        {size.priceModifier !== 0 && (
+                          <span style={{ fontSize: "12px", color: "#666" }}>
+                            {size.priceModifier > 0 ? " +" : " "}
+                            {size.priceModifier.toFixed(2)}zł
+                          </span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Składniki do usunięcia */}
-            {product.details && product.details.ingredients && (
-              <div style={{ marginBottom: "20px" }}>
-                <h4>➖ Usuń składniki:</h4>
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  {product.details.ingredients.map((ingredient, index) => (
-                    <label
-                      key={index}
-                      style={{
-                        padding: "6px 10px",
-                        border: removedIngredients.includes(ingredient.name)
-                          ? "2px solid #f44336"
-                          : "1px solid #ddd",
-                        borderRadius: "16px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        backgroundColor: removedIngredients.includes(
-                          ingredient.name
-                        )
-                          ? "#ffebee"
-                          : "white",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={removedIngredients.includes(ingredient.name)}
-                        onChange={() =>
-                          toggleIngredientRemoval(ingredient.name)
-                        }
-                        style={{ marginRight: "5px" }}
-                      />
-                      {ingredient.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Poziom ostrości */}
-            {isApplicableOption("spicy") && (
-              <div style={{ marginBottom: "20px" }}>
-                <h4>🌶️ Poziom ostrości: {spicyLevel}/5</h4>
-                <input
-                  type="range"
-                  min="0"
-                  max="5"
-                  value={spicyLevel}
-                  onChange={(e) => setSpicyLevel(parseInt(e.target.value))}
-                  style={{ width: "100%" }}
-                />
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: "12px",
-                    color: "#666",
-                  }}
-                >
-                  <span>Łagodne</span>
-                  <span>Średnie</span>
-                  <span>Ostre 🔥</span>
-                </div>
-              </div>
-            )}
-
-            {/* Styl przygotowania */}
-            {isApplicableOption("cooking") && (
-              <div style={{ marginBottom: "20px" }}>
-                <h4>🍳 Sposób przygotowania:</h4>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  {customizationOptions.cookingStyles.map((style) => (
-                    <label
-                      key={style.id}
-                      style={{
-                        padding: "8px 12px",
-                        border:
-                          cookingStyle === style.id
-                            ? "2px solid #db0007"
+              {/* Dodatki */}
+              {isApplicableOption("extras") && (
+                <div style={{ marginBottom: "20px" }}>
+                  <h4>➕ Dodatki:</h4>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(180px, 1fr))",
+                      gap: "8px",
+                    }}
+                  >
+                    {customizationOptions.extras.map((extra) => (
+                      <label
+                        key={extra.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "10px",
+                          border: addedExtras.includes(extra.id)
+                            ? "2px solid #4caf50"
                             : "1px solid #ddd",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        backgroundColor:
-                          cookingStyle === style.id ? "#fff5f5" : "white",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="cooking"
-                        value={style.id}
-                        checked={cookingStyle === style.id}
-                        onChange={(e) => setCookingStyle(e.target.value)}
-                        style={{ marginRight: "6px" }}
-                      />
-                      {style.name}
-                    </label>
-                  ))}
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          backgroundColor: addedExtras.includes(extra.id)
+                            ? "#f8fff8"
+                            : "white",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={addedExtras.includes(extra.id)}
+                          onChange={() => toggleExtra(extra.id)}
+                          style={{ marginRight: "8px" }}
+                        />
+                        <span style={{ flex: 1 }}>{extra.name}</span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "#666",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          +{extra.priceModifier.toFixed(2)}zł
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Składniki do usunięcia */}
+              {product.details && product.details.ingredients && (
+                <div style={{ marginBottom: "20px" }}>
+                  <h4>➖ Usuń składniki:</h4>
+                  <div
+                    style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+                  >
+                    {product.details.ingredients.map((ingredient, index) => (
+                      <label
+                        key={index}
+                        style={{
+                          padding: "6px 10px",
+                          border: removedIngredients.includes(ingredient.name)
+                            ? "2px solid #f44336"
+                            : "1px solid #ddd",
+                          borderRadius: "16px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          backgroundColor: removedIngredients.includes(
+                            ingredient.name
+                          )
+                            ? "#ffebee"
+                            : "white",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={removedIngredients.includes(ingredient.name)}
+                          onChange={() =>
+                            toggleIngredientRemoval(ingredient.name)
+                          }
+                          style={{ marginRight: "5px" }}
+                        />
+                        {ingredient.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Poziom ostrości */}
+              {isApplicableOption("spicy") && (
+                <div style={{ marginBottom: "20px" }}>
+                  <h4>🌶️ Poziom ostrości: {spicyLevel}/5</h4>
+                  <input
+                    type="range"
+                    min="0"
+                    max="5"
+                    value={spicyLevel}
+                    onChange={(e) => setSpicyLevel(parseInt(e.target.value))}
+                    style={{ width: "100%" }}
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: "12px",
+                      color: "#666",
+                    }}
+                  >
+                    <span>Łagodne</span>
+                    <span>Średnie</span>
+                    <span>Ostre 🔥</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Styl przygotowania */}
+              {isApplicableOption("cooking") && (
+                <div style={{ marginBottom: "20px" }}>
+                  <h4>🍳 Sposób przygotowania:</h4>
+                  <div
+                    style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+                  >
+                    {customizationOptions.cookingStyles.map((style) => (
+                      <label
+                        key={style.id}
+                        style={{
+                          padding: "8px 12px",
+                          border:
+                            cookingStyle === style.id
+                              ? "2px solid #db0007"
+                              : "1px solid #ddd",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          backgroundColor:
+                            cookingStyle === style.id ? "#fff5f5" : "white",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="cooking"
+                          value={style.id}
+                          checked={cookingStyle === style.id}
+                          onChange={(e) => setCookingStyle(e.target.value)}
+                          style={{ marginRight: "6px" }}
+                        />
+                        {style.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Instrukcje specjalne - tylko dla dostępnych produktów */}
+          {product.isAvailable && (
+            <div className="special-instructions">
+              <h3>📝 Dodatkowe instrukcje:</h3>
+              <textarea
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
+                placeholder="Np. bez cebuli, więcej sosu..."
+                maxLength={200}
+                style={{ width: "100%", marginBottom: "10px" }}
+              />
+
+              <h4>⚠️ Uwagi dotyczące alergii:</h4>
+              <textarea
+                value={allergyNotes}
+                onChange={(e) => setAllergyNotes(e.target.value)}
+                placeholder="Np. alergia na gluten, laktozę, orzechy..."
+                maxLength={200}
+                style={{ width: "100%" }}
+              />
+            </div>
+          )}
+
+          {/* Ilość i cena - tylko dla dostępnych produktów */}
+          {product.isAvailable && (
+            <>
+              <div className="quantity-selector">
+                <h3>Ilość:</h3>
+                <div className="quantity-controls">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <span>{quantity}</span>
+                  <button onClick={() => setQuantity(quantity + 1)}>+</button>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Instrukcje specjalne */}
-          <div className="special-instructions">
-            <h3>📝 Dodatkowe instrukcje:</h3>
-            <textarea
-              value={specialInstructions}
-              onChange={(e) => setSpecialInstructions(e.target.value)}
-              placeholder="Np. bez cebuli, więcej sosu..."
-              maxLength={200}
-              style={{ width: "100%", marginBottom: "10px" }}
-            />
-
-            <h4>⚠️ Uwagi dotyczące alergii:</h4>
-            <textarea
-              value={allergyNotes}
-              onChange={(e) => setAllergyNotes(e.target.value)}
-              placeholder="Np. alergia na gluten, laktozę, orzechy..."
-              maxLength={200}
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div className="quantity-selector">
-            <h3>Ilość:</h3>
-            <div className="quantity-controls">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
+              <div
+                className="total-price"
+                style={{
+                  padding: "15px",
+                  backgroundColor: "#f8fff8",
+                  border: "2px solid #4caf50",
+                  borderRadius: "8px",
+                  margin: "20px 0",
+                }}
               >
-                -
+                <h3>💰 Cena końcowa: {totalPrice.toFixed(2)} zł</h3>
+                {totalPrice !== basePrice * quantity && (
+                  <p style={{ fontSize: "14px", color: "#666" }}>
+                    (Cena bazowa: {(basePrice * quantity).toFixed(2)} zł +
+                    modyfikacje: +
+                    {(totalPrice - basePrice * quantity).toFixed(2)} zł)
+                  </p>
+                )}
+              </div>
+
+              <button onClick={handleAddToCart} className="add-to-cart-button">
+                Dodaj do koszyka - {totalPrice.toFixed(2)} zł
               </button>
-              <span>{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)}>+</button>
-            </div>
-          </div>
-
-          <div
-            className="total-price"
-            style={{
-              padding: "15px",
-              backgroundColor: "#f8fff8",
-              border: "2px solid #4caf50",
-              borderRadius: "8px",
-              margin: "20px 0",
-            }}
-          >
-            <h3>💰 Cena końcowa: {totalPrice.toFixed(2)} zł</h3>
-            {totalPrice !== basePrice * quantity && (
-              <p style={{ fontSize: "14px", color: "#666" }}>
-                (Cena bazowa: {(basePrice * quantity).toFixed(2)} zł +
-                modyfikacje: +{(totalPrice - basePrice * quantity).toFixed(2)}{" "}
-                zł)
-              </p>
-            )}
-          </div>
-
-          <button onClick={handleAddToCart} className="add-to-cart-button">
-            Dodaj do koszyka - {totalPrice.toFixed(2)} zł
-          </button>
+            </>
+          )}
         </div>
       </div>
     </div>

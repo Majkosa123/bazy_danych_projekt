@@ -23,9 +23,25 @@ function CheckoutPage() {
   const [selectedTable, setSelectedTable] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Nowe stany dla adresu dostawy
+  const [deliveryAddress, setDeliveryAddress] = useState({
+    street: "",
+    houseNumber: "",
+    apartmentNumber: "",
+    city: "",
+    postalCode: "",
+    phone: "",
+    additionalInfo: "",
+  });
+
   const isTableRequired = deliveryOptions.find(
     (option) =>
       option.id === selectedDeliveryOption && option.name === "Na miejscu"
+  );
+
+  const isDeliveryRequired = deliveryOptions.find(
+    (option) =>
+      option.id === selectedDeliveryOption && option.name === "Dostawa"
   );
 
   useEffect(() => {
@@ -64,6 +80,25 @@ function CheckoutPage() {
     loadCheckoutData();
   }, [cart, navigate]);
 
+  const handleDeliveryAddressChange = (field, value) => {
+    setDeliveryAddress((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const validateDeliveryAddress = () => {
+    if (!isDeliveryRequired) return true;
+
+    const required = ["street", "houseNumber", "city", "postalCode", "phone"];
+    for (let field of required) {
+      if (!deliveryAddress[field].trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmitOrder = async () => {
     if (!selectedDeliveryOption || !selectedPaymentMethod) {
       setError("Proszę wybrać opcję dostawy i metodę płatności.");
@@ -73,6 +108,12 @@ function CheckoutPage() {
     // Sprawdź czy dla opcji "Na miejscu" wybrano stolik
     if (isTableRequired && !selectedTable) {
       setError("Proszę wybrać stolik dla opcji 'Na miejscu'.");
+      return;
+    }
+
+    // Sprawdź czy dla opcji "Dostawa" wypełniono adres
+    if (isDeliveryRequired && !validateDeliveryAddress()) {
+      setError("Proszę wypełnić wszystkie wymagane pola adresu dostawy.");
       return;
     }
 
@@ -95,16 +136,39 @@ function CheckoutPage() {
       );
       console.log("✅ 2. All items added to order");
 
+      // Przygotuj notatki z adresem dostawy
+      let finalNotes = notes;
+      if (isDeliveryRequired) {
+        const addressText = `ADRES DOSTAWY:
+Ulica: ${deliveryAddress.street} ${deliveryAddress.houseNumber}${
+          deliveryAddress.apartmentNumber
+            ? "/" + deliveryAddress.apartmentNumber
+            : ""
+        }
+Miasto: ${deliveryAddress.city}
+Kod pocztowy: ${deliveryAddress.postalCode}
+Telefon: ${deliveryAddress.phone}
+${
+  deliveryAddress.additionalInfo
+    ? "Dodatkowe info: " + deliveryAddress.additionalInfo
+    : ""
+}`;
+
+        finalNotes = finalNotes
+          ? `${addressText}\n\nUwagi: ${finalNotes}`
+          : addressText;
+      }
+
       console.log("🚚 3. Creating delivery...", {
         deliveryOptionId: selectedDeliveryOption,
         tableId: isTableRequired ? selectedTable : null,
-        notes,
+        notes: finalNotes,
       });
 
       await createOrderDelivery(orderId, {
         deliveryOptionId: selectedDeliveryOption,
         tableId: isTableRequired ? selectedTable : null,
-        notes,
+        notes: finalNotes,
       });
       console.log("✅ 3. Delivery created");
 
@@ -187,8 +251,17 @@ function CheckoutPage() {
                   checked={selectedDeliveryOption === option.id}
                   onChange={(e) => {
                     setSelectedDeliveryOption(e.target.value);
-                    // Reset wyboru stolika gdy zmienia się opcja dostawy
+                    // Reset wyboru stolika i adresu gdy zmienia się opcja dostawy
                     setSelectedTable("");
+                    setDeliveryAddress({
+                      street: "",
+                      houseNumber: "",
+                      apartmentNumber: "",
+                      city: "",
+                      postalCode: "",
+                      phone: "",
+                      additionalInfo: "",
+                    });
                   }}
                 />
                 <div className="option-details">
@@ -208,6 +281,122 @@ function CheckoutPage() {
               selectedTable={selectedTable}
               onTableSelect={setSelectedTable}
             />
+          </div>
+        )}
+
+        {/* Formularz adresu - tylko dla opcji "Dostawa" */}
+        {isDeliveryRequired && (
+          <div className="delivery-address-section">
+            <h3>Adres dostawy</h3>
+            <div className="address-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="street">Ulica *</label>
+                  <input
+                    type="text"
+                    id="street"
+                    value={deliveryAddress.street}
+                    onChange={(e) =>
+                      handleDeliveryAddressChange("street", e.target.value)
+                    }
+                    placeholder="np. Marszałkowska"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="houseNumber">Numer domu *</label>
+                  <input
+                    type="text"
+                    id="houseNumber"
+                    value={deliveryAddress.houseNumber}
+                    onChange={(e) =>
+                      handleDeliveryAddressChange("houseNumber", e.target.value)
+                    }
+                    placeholder="np. 15"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="apartmentNumber">Numer mieszkania</label>
+                  <input
+                    type="text"
+                    id="apartmentNumber"
+                    value={deliveryAddress.apartmentNumber}
+                    onChange={(e) =>
+                      handleDeliveryAddressChange(
+                        "apartmentNumber",
+                        e.target.value
+                      )
+                    }
+                    placeholder="np. 23"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="city">Miasto *</label>
+                  <input
+                    type="text"
+                    id="city"
+                    value={deliveryAddress.city}
+                    onChange={(e) =>
+                      handleDeliveryAddressChange("city", e.target.value)
+                    }
+                    placeholder="np. Warszawa"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="postalCode">Kod pocztowy *</label>
+                  <input
+                    type="text"
+                    id="postalCode"
+                    value={deliveryAddress.postalCode}
+                    onChange={(e) =>
+                      handleDeliveryAddressChange("postalCode", e.target.value)
+                    }
+                    placeholder="np. 00-001"
+                    pattern="[0-9]{2}-[0-9]{3}"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="phone">Telefon *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={deliveryAddress.phone}
+                    onChange={(e) =>
+                      handleDeliveryAddressChange("phone", e.target.value)
+                    }
+                    placeholder="np. 123-456-789"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="additionalInfo">Dodatkowe informacje</label>
+                <textarea
+                  id="additionalInfo"
+                  value={deliveryAddress.additionalInfo}
+                  onChange={(e) =>
+                    handleDeliveryAddressChange(
+                      "additionalInfo",
+                      e.target.value
+                    )
+                  }
+                  placeholder="np. kod do bramy, piętro, dodatkowe wskazówki..."
+                  rows="3"
+                />
+              </div>
+
+              <p className="required-note">* - pola wymagane</p>
+            </div>
           </div>
         )}
 

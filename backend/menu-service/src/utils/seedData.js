@@ -85,7 +85,7 @@ const seedProducts = async (categories) => {
         description:
           "Delikatny burger z wołowy z serem camembert w panierce, sałatą, smazoną cebulką i sosem majonezowym",
         price: 16.99,
-        isAvailable: true,
+        isAvailable: false,
         categoryId: categoryMap["Burgery"],
       },
 
