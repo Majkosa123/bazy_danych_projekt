@@ -4,7 +4,9 @@ const { Op } = require("sequelize");
 
 exports.validatePromoCode = async (req, res, next) => {
   try {
-    const { code, orderId } = req.body;
+    const { code, orderId, totalAmount } = req.body;
+
+    console.log("🎟️ Validating promo code:", { code, orderId, totalAmount });
 
     const promoCode = await PromoCode.findOne({
       where: {
@@ -27,13 +29,17 @@ exports.validatePromoCode = async (req, res, next) => {
       return next(error);
     }
 
-    const order = await orderService.getOrderById(orderId);
+    let orderTotal;
+    if (orderId === "temp-validation" && totalAmount) {
+      orderTotal = parseFloat(totalAmount);
+    } else {
+      const order = await orderService.getOrderById(orderId);
+      orderTotal = parseFloat(order.totalAmount);
+    }
 
-    if (parseFloat(order.totalAmount) < parseFloat(promoCode.minOrderValue)) {
+    if (orderTotal < parseFloat(promoCode.minOrderValue)) {
       const error = new Error(
-        `Minimalna wartość zamówienia dla tego kodu to ${
-          promoCode.minOrderValue
-        } ${order.currency || "PLN"}`
+        `Minimalna wartość zamówienia dla tego kodu to ${promoCode.minOrderValue} PLN`
       );
       error.statusCode = 400;
       return next(error);
@@ -41,25 +47,48 @@ exports.validatePromoCode = async (req, res, next) => {
 
     let discountAmount = 0;
     if (promoCode.discountType === "percentage") {
-      discountAmount =
-        (parseFloat(order.totalAmount) * parseFloat(promoCode.discountValue)) /
-        100;
+      discountAmount = (orderTotal * parseFloat(promoCode.discountValue)) / 100;
     } else {
       discountAmount = parseFloat(promoCode.discountValue);
     }
 
-    discountAmount = Math.min(discountAmount, parseFloat(order.totalAmount));
+    discountAmount = Math.min(discountAmount, orderTotal);
+    const finalAmount = orderTotal - discountAmount;
 
     res.status(200).json({
       status: "success",
       message: "Kod promocyjny jest prawidłowy",
       data: {
-        promoCode,
+        promoCode: {
+          id: promoCode.id,
+          code: promoCode.code,
+          discountType: promoCode.discountType,
+          discountValue: promoCode.discountValue,
+          description: getPromoDescription(promoCode),
+        },
         discountAmount,
-        finalAmount: parseFloat(order.totalAmount) - discountAmount,
+        finalAmount,
+        originalAmount: orderTotal,
+        savings: discountAmount,
       },
     });
   } catch (error) {
+    console.error("❌ Promo code validation error:", error);
     next(error);
   }
+};
+
+const getPromoDescription = (promoCode) => {
+  const discountText =
+    promoCode.discountType === "percentage"
+      ? `${promoCode.discountValue}%`
+      : `${promoCode.discountValue} zł`;
+
+  const descriptions = {
+    WELCOME10: `Rabat powitalny ${discountText} dla nowych klientów`,
+    FIXED20: `Stały rabat ${discountText} od zamówienia`,
+    SUMMER25: `Letnia promocja ${discountText} rabatu`,
+  };
+
+  return descriptions[promoCode.code] || `Rabat ${discountText}`;
 };

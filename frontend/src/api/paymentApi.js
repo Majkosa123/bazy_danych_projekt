@@ -28,15 +28,26 @@ export const processPayment = async (orderId, paymentData) => {
   }
 };
 
-export const validatePromoCode = async (code, orderId) => {
+export const validatePromoCode = async (code, orderData) => {
   try {
-    const response = await axios.post(`${BASE_URL}/promo-codes/validate`, {
+    const requestData = {
       code,
-      orderId,
-    });
+      orderId: "temp-validation",
+      totalAmount: orderData.totalAmount || 0,
+    };
+
+    console.log("🎟️ Sending promo code request:", requestData);
+
+    const response = await axios.post(
+      `${BASE_URL}/promo-codes/validate`,
+      requestData
+    );
+
+    console.log("✅ Promo code response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Błąd podczas weryfikacji kodu promocyjnego:", error);
+    console.error("❌ Promo code error:", error.response?.data);
+    console.error("Full error:", error);
     throw error;
   }
 };

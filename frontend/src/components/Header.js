@@ -36,7 +36,7 @@ const Header = () => {
             textDecoration: "none",
           }}
         >
-          🍔 FastFood Kiosk
+          🍔 McDonald's
         </Link>
       </div>
 

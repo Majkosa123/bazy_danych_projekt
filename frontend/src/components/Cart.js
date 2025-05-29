@@ -1,16 +1,81 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
+import { validatePromoCode } from "../api/paymentApi";
 
 function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalPrice } =
     useContext(CartContext);
   const navigate = useNavigate();
 
+  // Stany dla kodu rabatowego
+  const [promoCode, setPromoCode] = useState("");
+  const [promoDiscount, setPromoDiscount] = useState(null);
+  const [promoError, setPromoError] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [appliedPromoCode, setAppliedPromoCode] = useState(null);
+
   const formatPrice = (price) => {
     const numPrice = parseFloat(price);
     return isNaN(numPrice) ? 0 : numPrice;
   };
+
+  const handleApplyPromoCode = async () => {
+    if (!promoCode.trim()) {
+      setPromoError("Wprowadź kod rabatowy");
+      return;
+    }
+
+    if (cart.length === 0) {
+      setPromoError("Koszyk jest pusty");
+      return;
+    }
+
+    setPromoLoading(true);
+    setPromoError("");
+
+    try {
+      // Tworzymy tymczasowe zamówienie żeby sprawdzić kod
+      const tempOrderData = {
+        totalAmount: totalPrice,
+        currency: "PLN",
+      };
+
+      const response = await validatePromoCode(promoCode, tempOrderData);
+
+      setPromoDiscount(response.data);
+      setAppliedPromoCode(promoCode);
+      setPromoCode("");
+      console.log("✅ Kod rabatowy zastosowany:", response.data);
+    } catch (error) {
+      console.error("❌ Błąd kodu rabatowego:", error);
+      setPromoError(
+        error.response?.data?.message ||
+          "Nieprawidłowy kod rabatowy lub kod wygasł"
+      );
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleRemovePromoCode = () => {
+    setPromoDiscount(null);
+    setAppliedPromoCode(null);
+    setPromoError("");
+  };
+
+  const calculateFinalPrice = () => {
+    const basePrice = formatPrice(totalPrice);
+    if (!promoDiscount) return basePrice;
+
+    const discount = formatPrice(promoDiscount.discountAmount || 0);
+    return Math.max(0, basePrice - discount);
+  };
+
+  const finalPrice = calculateFinalPrice();
+  const savings = promoDiscount
+    ? formatPrice(promoDiscount.discountAmount || 0)
+    : 0;
 
   if (cart.length === 0) {
     return (
@@ -99,10 +164,105 @@ function Cart() {
         ))}
       </div>
 
+      {/* SEKCJA KODU RABATOWEGO */}
+      <div className="promo-code-section">
+        <h3>🎟️ Kod rabatowy</h3>
+
+        {!appliedPromoCode ? (
+          <div className="promo-code-input">
+            <div className="input-group">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="Wprowadź kod rabatowy"
+                maxLength={20}
+                disabled={promoLoading}
+              />
+              <button
+                onClick={handleApplyPromoCode}
+                disabled={promoLoading || !promoCode.trim()}
+                className="apply-promo-button"
+              >
+                {promoLoading ? "Sprawdzam..." : "Zastosuj"}
+              </button>
+            </div>
+
+            {promoError && <div className="promo-error">❌ {promoError}</div>}
+
+            <div className="available-codes">
+              <p>
+                <small>
+                  💡 Dostępne kody: <strong>WELCOME10</strong>,{" "}
+                  <strong>FIXED20</strong>, <strong>SUMMER25</strong>
+                </small>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="applied-promo">
+            <div className="promo-success">
+              ✅ Kod <strong>{appliedPromoCode}</strong> został zastosowany!
+              <button
+                onClick={handleRemovePromoCode}
+                className="remove-promo-button"
+              >
+                ❌ Usuń
+              </button>
+            </div>
+            <div className="promo-details">
+              <p>
+                💰 Oszczędzasz:{" "}
+                <strong style={{ color: "#28a745" }}>
+                  {savings.toFixed(2)} zł
+                </strong>
+              </p>
+              {promoDiscount.promoCode && (
+                <p>
+                  <small>
+                    📋{" "}
+                    {promoDiscount.promoCode.description ||
+                      "Rabat został naliczony"}
+                  </small>
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="cart-summary">
-        <div className="cart-total">
-          <h2>Razem:</h2>
-          <h2>{formatPrice(totalPrice).toFixed(2)} zł</h2>
+        <div className="price-breakdown">
+          <div className="price-row">
+            <span>Suma produktów:</span>
+            <span>{formatPrice(totalPrice).toFixed(2)} zł</span>
+          </div>
+
+          {promoDiscount && (
+            <div className="price-row discount">
+              <span>Rabat ({appliedPromoCode}):</span>
+              <span style={{ color: "#28a745" }}>-{savings.toFixed(2)} zł</span>
+            </div>
+          )}
+
+          <div className="cart-total">
+            <h2>Do zapłaty:</h2>
+            <h2 style={{ color: promoDiscount ? "#28a745" : "inherit" }}>
+              {finalPrice.toFixed(2)} zł
+              {promoDiscount && (
+                <small
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "normal",
+                    color: "#666",
+                  }}
+                >
+                  (zamiast {formatPrice(totalPrice).toFixed(2)} zł)
+                </small>
+              )}
+            </h2>
+          </div>
         </div>
 
         <div className="cart-actions">
@@ -113,7 +273,11 @@ function Cart() {
             Kontynuuj zakupy
           </Link>
           <button
-            onClick={() => navigate("/checkout")}
+            onClick={() =>
+              navigate("/checkout", {
+                state: { appliedPromoCode: promoDiscount },
+              })
+            }
             className="checkout-button"
           >
             Przejdź do finalizacji

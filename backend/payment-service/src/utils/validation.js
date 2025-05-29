@@ -3,6 +3,7 @@ const Joi = require("joi");
 const validatePromoCodeSchema = Joi.object({
   code: Joi.string().required(),
   orderId: Joi.string().required(),
+  totalAmount: Joi.number().optional(),
 });
 
 const createPaymentSchema = Joi.object({
@@ -16,18 +17,24 @@ const createPaymentSchema = Joi.object({
 
 const validateRequest = (schema) => {
   return (req, res, next) => {
+    console.log("🔍 Validating request body:", req.body);
+
     const { error } = schema.validate(req.body);
 
     if (error) {
       const errorMessage = error.details
         .map((detail) => detail.message)
         .join(", ");
+
+      console.error("❌ Validation error:", errorMessage);
+
       return res.status(400).json({
         status: "error",
         message: `Błąd walidacji: ${errorMessage}`,
       });
     }
 
+    console.log("✅ Validation passed");
     next();
   };
 };

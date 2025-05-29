@@ -2,6 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchProductDetails } from "../api/menuApi";
 import { CartContext } from "../context/CartContext";
+import {
+  getProductImagePath,
+  getDefaultProductImage,
+} from "../utils/imageHelper";
 import Spinner from "../components/common/Spinner";
 
 function ProductDetails() {
@@ -103,21 +107,46 @@ function ProductDetails() {
     if (!product) return false;
     const productName = product.name.toLowerCase();
 
+    // Definicje kategorii produktów
+    const isBurger =
+      productName.includes("burger") ||
+      productName.includes("big mac") ||
+      productName.includes("cheeseburger") ||
+      productName.includes("mcchicken");
+
+    const isFries = productName.includes("frytki");
+
+    const isDrink =
+      productName.includes("cola") ||
+      productName.includes("woda") ||
+      productName.includes("kawa") ||
+      productName.includes("napoj");
+
+    const isDessert =
+      productName.includes("mcflurry") ||
+      productName.includes("lody") ||
+      productName.includes("ciastko") ||
+      productName.includes("deser");
+
+    const isNuggets =
+      productName.includes("nuggets") || productName.includes("mcnuggets");
+
     switch (optionType) {
       case "sizes":
-        return productName.includes("burger") || productName.includes("frytki");
+        return isBurger || isFries;
       case "cooking":
+        // Tylko burgery wołowe (nie drobiowe)
         return (
-          productName.includes("burger") && !productName.includes("drobiowy")
+          isBurger &&
+          !productName.includes("chicken") &&
+          !productName.includes("mcchicken")
         );
       case "spicy":
-        return (
-          !productName.includes("napoj") &&
-          !productName.includes("deser") &&
-          !productName.includes("lody")
-        );
+        // Wszystko oprócz napojów i deserów
+        return !isDrink && !isDessert;
       case "extras":
-        return productName.includes("burger");
+        // Tylko burgery
+        return isBurger;
       default:
         return true;
     }
@@ -155,6 +184,11 @@ function ProductDetails() {
         className: "availability-unavailable",
       };
     }
+  };
+
+  const handleImageError = (e, productName) => {
+    console.log(`Nie znaleziono obrazka dla: ${productName}`);
+    e.target.src = getDefaultProductImage();
   };
 
   const handleAddToCart = () => {
@@ -242,6 +276,7 @@ function ProductDetails() {
   const basePrice = formatPrice(product.price);
   const totalPrice = calculateTotalPrice();
   const availability = getAvailabilityStatus();
+  const imagePath = getProductImagePath(product.name, product.Category?.name);
 
   return (
     <div className="product-details-page">
@@ -264,12 +299,9 @@ function ProductDetails() {
       <div className="product-content">
         <div className="product-image">
           <img
-            src={`/images/products/${product.id}.jpg`}
+            src={imagePath}
             alt={product.name}
-            onError={(e) => {
-              e.target.src =
-                "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+Cg==";
-            }}
+            onError={(e) => handleImageError(e, product.name)}
           />
         </div>
 

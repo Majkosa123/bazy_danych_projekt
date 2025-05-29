@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchProductsByCategory } from "../api/menuApi";
+import {
+  getProductImagePath,
+  getDefaultProductImage,
+} from "../utils/imageHelper";
 import Spinner from "./common/Spinner";
 
 function ProductList() {
@@ -51,6 +55,11 @@ function ProductList() {
     }
   };
 
+  const handleImageError = (e, productName) => {
+    console.log(`Nie znaleziono obrazka dla: ${productName}`);
+    e.target.src = getDefaultProductImage();
+  };
+
   if (loading) return <Spinner />;
   if (error) return <div className="error-message">{error}</div>;
 
@@ -66,6 +75,10 @@ function ProductList() {
       <div className="products-grid">
         {products.map((product) => {
           const availability = getAvailabilityIcon(product.isAvailable);
+          const imagePath = getProductImagePath(
+            product.name,
+            product.Category?.name
+          );
 
           return (
             <Link
@@ -77,12 +90,9 @@ function ProductList() {
             >
               <div className="product-image">
                 <img
-                  src={`/images/products/${product.id}.jpg`}
+                  src={imagePath}
                   alt={product.name}
-                  onError={(e) => {
-                    e.target.src =
-                      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
-                  }}
+                  onError={(e) => handleImageError(e, product.name)}
                 />
 
                 {/* Ikona dostępności w prawym górnym rogu */}

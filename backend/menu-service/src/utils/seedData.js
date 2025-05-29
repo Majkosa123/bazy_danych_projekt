@@ -59,7 +59,7 @@ const seedProducts = async (categories) => {
     const products = [
       // Burgery
       {
-        name: "Klasyczny Burger",
+        name: "Big Mac",
         description: "Soczysty burger wołowy z sałatą, pomidorem i cebulą",
         price: 15.99,
         isAvailable: true,
@@ -73,7 +73,7 @@ const seedProducts = async (categories) => {
         categoryId: categoryMap["Burgery"],
       },
       {
-        name: "Burger Drobiowy",
+        name: "McChicken",
         description:
           "Delikatny burger z kurczaka z sałatą i sosem musztardowym",
         price: 16.99,
@@ -105,7 +105,7 @@ const seedProducts = async (categories) => {
         categoryId: categoryMap["Frytki i dodatki"],
       },
       {
-        name: "Nuggetsy z kurczaka",
+        name: "McNuggets",
         description: "6 sztuk nuggetsów z kurczaka",
         price: 9.99,
         isAvailable: true,
@@ -114,7 +114,7 @@ const seedProducts = async (categories) => {
 
       // Napoje
       {
-        name: "Cola",
+        name: "Coca-Cola",
         description: "Orzeźwiająca cola 0.5l",
         price: 5.99,
         isAvailable: true,
@@ -137,14 +137,14 @@ const seedProducts = async (categories) => {
 
       // Desery
       {
-        name: "Lody waniliowe",
+        name: "McFlurry",
         description: "Kremowe lody waniliowe",
-        price: 4.99,
+        price: 9.99,
         isAvailable: true,
         categoryId: categoryMap["Desery"],
       },
       {
-        name: "Szarlotka",
+        name: "Ciastko jabłkowe",
         description: "Domowa szarlotka z jabłkami",
         price: 8.99,
         isAvailable: true,
@@ -189,7 +189,14 @@ const seedProductDetails = async (products) => {
       let nutritionalValues = {};
       let allergens = [];
 
-      if (product.name.toLowerCase().includes("burger")) {
+      const productName = product.name.toLowerCase();
+
+      // BURGERY - rozpoznawanie po konkretnych nazwach
+      if (
+        productName.includes("big mac") ||
+        productName.includes("cheeseburger") ||
+        productName.includes("burger drwala")
+      ) {
         ingredients = [
           { name: "Bułka", isAllergen: true },
           { name: "Mięso wołowe", isAllergen: false },
@@ -198,42 +205,64 @@ const seedProductDetails = async (products) => {
           { name: "Cebula", isAllergen: false },
         ];
 
-        if (product.name.toLowerCase().includes("cheese")) {
+        // Dodatkowe składniki dla konkretnych burgerów
+        if (
+          productName.includes("cheeseburger") ||
+          productName.includes("big mac")
+        ) {
           ingredients.push({ name: "Ser", isAllergen: true });
           allergens.push("Laktoza");
         }
 
-        if (product.name.toLowerCase().includes("drobiowy")) {
-          ingredients = [
-            { name: "Bułka", isAllergen: true },
-            { name: "Mięso z kurczaka", isAllergen: false },
-            { name: "Sałata", isAllergen: false },
-            { name: "Sos musztardowy", isAllergen: true },
-          ];
-          allergens.push("Gluten", "Gorczyca");
-        } else {
-          allergens.push("Gluten");
+        if (productName.includes("burger drwala")) {
+          ingredients.push({ name: "Ser camembert", isAllergen: true });
+          ingredients.push({ name: "Smażona cebulka", isAllergen: false });
+          allergens.push("Laktoza");
         }
 
+        allergens.push("Gluten");
         nutritionalValues = {
           calories: 450,
           protein: 25,
           carbohydrates: 45,
           fat: 20,
         };
-      } else if (product.name.toLowerCase().includes("frytki")) {
+
+        // MCCHICKEN - burger drobiowy
+      } else if (productName.includes("mcchicken")) {
+        ingredients = [
+          { name: "Bułka", isAllergen: true },
+          { name: "Mięso z kurczaka", isAllergen: false },
+          { name: "Sałata", isAllergen: false },
+          { name: "Sos musztardowy", isAllergen: true },
+        ];
+        allergens = ["Gluten", "Gorczyca"];
+        nutritionalValues = {
+          calories: 400,
+          protein: 22,
+          carbohydrates: 40,
+          fat: 18,
+        };
+
+        // FRYTKI
+      } else if (productName.includes("frytki")) {
         ingredients = [
           { name: "Ziemniaki", isAllergen: false },
           { name: "Olej roślinny", isAllergen: false },
           { name: "Sól", isAllergen: false },
         ];
         nutritionalValues = {
-          calories: 350,
+          calories: productName.includes("małe") ? 230 : 350,
           protein: 4,
-          carbohydrates: 45,
-          fat: 15,
+          carbohydrates: productName.includes("małe") ? 30 : 45,
+          fat: productName.includes("małe") ? 10 : 15,
         };
-      } else if (product.name.toLowerCase().includes("nuggets")) {
+
+        // MCNUGGETS
+      } else if (
+        productName.includes("mcnuggets") ||
+        productName.includes("nuggets")
+      ) {
         ingredients = [
           { name: "Mięso z kurczaka", isAllergen: false },
           { name: "Panierka", isAllergen: true },
@@ -246,7 +275,12 @@ const seedProductDetails = async (products) => {
           carbohydrates: 18,
           fat: 20,
         };
-      } else if (product.name.toLowerCase().includes("cola")) {
+
+        // COCA-COLA
+      } else if (
+        productName.includes("coca-cola") ||
+        productName.includes("cola")
+      ) {
         ingredients = [
           { name: "Woda gazowana", isAllergen: false },
           { name: "Cukier", isAllergen: false },
@@ -260,7 +294,9 @@ const seedProductDetails = async (products) => {
           carbohydrates: 53,
           fat: 0,
         };
-      } else if (product.name.toLowerCase().includes("woda")) {
+
+        // WODA MINERALNA
+      } else if (productName.includes("woda")) {
         ingredients = [{ name: "Woda mineralna", isAllergen: false }];
         nutritionalValues = {
           calories: 0,
@@ -268,7 +304,9 @@ const seedProductDetails = async (products) => {
           carbohydrates: 0,
           fat: 0,
         };
-      } else if (product.name.toLowerCase().includes("kawa")) {
+
+        // KAWA
+      } else if (productName.includes("kawa")) {
         ingredients = [
           { name: "Kawa", isAllergen: false },
           { name: "Woda", isAllergen: false },
@@ -279,7 +317,12 @@ const seedProductDetails = async (products) => {
           carbohydrates: 0,
           fat: 0,
         };
-      } else if (product.name.toLowerCase().includes("lody")) {
+
+        // MCFLURRY
+      } else if (
+        productName.includes("mcflurry") ||
+        productName.includes("lody")
+      ) {
         ingredients = [
           { name: "Mleko", isAllergen: true },
           { name: "Śmietana", isAllergen: true },
@@ -293,7 +336,12 @@ const seedProductDetails = async (products) => {
           carbohydrates: 20,
           fat: 9,
         };
-      } else if (product.name.toLowerCase().includes("szarlotka")) {
+
+        // CIASTKO JABŁKOWE
+      } else if (
+        productName.includes("ciastko") ||
+        productName.includes("jabłkowe")
+      ) {
         ingredients = [
           { name: "Mąka", isAllergen: true },
           { name: "Masło", isAllergen: true },
@@ -310,12 +358,16 @@ const seedProductDetails = async (products) => {
         };
       }
 
-      await ProductDetail.create({
-        productId: product.id,
-        ingredients,
-        nutritionalValues,
-        allergens,
-      });
+      // Tylko twórz szczegóły jeśli mamy składniki
+      if (ingredients.length > 0) {
+        await ProductDetail.create({
+          productId: product.id,
+          ingredients,
+          nutritionalValues,
+          allergens,
+        });
+        console.log(`Dodano szczegóły dla produktu: ${product.name}`);
+      }
     }
 
     console.log("Dodano szczegóły produktów");
