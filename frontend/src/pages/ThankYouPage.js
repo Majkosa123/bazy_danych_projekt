@@ -6,6 +6,12 @@ import Spinner from "../components/common/Spinner";
 function ThankYouPage() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // DODAJ DEBUG
+  console.log("🎯 ThankYouPage loaded");
+  console.log("📊 Location:", location);
+  console.log("📊 Location state:", location.state);
+
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
   const [error, setError] = useState(null);
@@ -13,12 +19,24 @@ function ThankYouPage() {
   // Pobierz orderId ze stanu przekazanego przez nawigację
   const { orderId, totalAmount } = location.state || {};
 
+  // DODAJ DEBUG
+  console.log("📊 Extracted orderId:", orderId);
+  console.log("📊 Extracted totalAmount:", totalAmount);
+
   useEffect(() => {
+    // DODAJ DEBUG
+    console.log("🔍 UseEffect - checking orderId:", orderId);
+
     // Jeśli nie ma orderId, przekieruj do strony głównej
     if (!orderId) {
+      console.log("❌ No orderId, redirecting to home");
       navigate("/");
       return;
     }
+
+    console.log("✅ OrderId found, fetching order details");
+
+    // ... reszta kodu
 
     const fetchOrderDetails = async () => {
       try {

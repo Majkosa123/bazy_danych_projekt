@@ -1,5 +1,6 @@
 const PromoCode = require("../models/sequelize/promoCode");
 const orderService = require("../services/orderService");
+const { Op } = require("sequelize");
 
 exports.validatePromoCode = async (req, res, next) => {
   try {

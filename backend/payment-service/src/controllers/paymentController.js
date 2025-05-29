@@ -7,13 +7,20 @@ const paymentGateway = require("../services/paymentGateway");
 const { sequelize } = require("../config/database");
 
 exports.processPayment = async (req, res, next) => {
+  console.log("💳 DEBUG - Payment request received:");
+  console.log("  orderId:", req.params.orderId);
+  console.log("  paymentMethodId:", req.body.paymentMethodId);
+  console.log("  full body:", JSON.stringify(req.body, null, 2));
+
   const transaction = await sequelize.transaction();
 
   try {
     const { orderId } = req.params;
     const { paymentMethodId, promoCodeId, customerInfo } = req.body;
 
+    console.log("🔍 Looking for order:", orderId);
     const order = await orderService.getOrderById(orderId);
+    console.log("✅ Order found:", order.id, "Total:", order.totalAmount);
 
     const paymentMethod = await PaymentMethod.findByPk(paymentMethodId);
     if (!paymentMethod) {

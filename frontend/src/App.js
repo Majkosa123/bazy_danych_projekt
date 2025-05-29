@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 
+import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import MenuPage from "./pages/MenuPage";
 import ProductDetails from "./pages/ProductDetails";
@@ -16,6 +17,7 @@ function App() {
     <Router>
       <CartProvider>
         <div className="app">
+          <Header />
           <div className="app-content">
             <Routes>
               <Route path="/" element={<HomePage />} />

@@ -15,7 +15,8 @@ const addOrderItemSchema = Joi.object({
       })
     )
     .optional(),
-  specialInstructions: Joi.string().max(500).optional(),
+
+  specialInstructions: Joi.string().max(500).allow("").optional(),
 });
 
 const updateOrderStatusSchema = Joi.object({
@@ -42,7 +43,7 @@ const validateRequest = (schema) => {
         .join(", ");
       return res.status(400).json({
         status: "error",
-        message: `Błąd walidacji: ${errorMessage}`,
+        message: `Błąd waladacji: ${errorMessage}`,
       });
     }
 

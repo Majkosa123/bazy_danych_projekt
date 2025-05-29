@@ -4,6 +4,7 @@ import { CartContext } from "../context/CartContext";
 import { createOrder, addOrderItem } from "../api/orderApi";
 import { fetchDeliveryOptions, createOrderDelivery } from "../api/deliveryApi";
 import { fetchPaymentMethods, processPayment } from "../api/paymentApi";
+import TableSelection from "../components/TableSelection";
 import Spinner from "../components/common/Spinner";
 
 function CheckoutPage() {
@@ -19,8 +20,13 @@ function CheckoutPage() {
 
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
-  const [tableNumber, setTableNumber] = useState("");
+  const [selectedTable, setSelectedTable] = useState("");
   const [notes, setNotes] = useState("");
+
+  const isTableRequired = deliveryOptions.find(
+    (option) =>
+      option.id === selectedDeliveryOption && option.name === "Na miejscu"
+  );
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -64,11 +70,18 @@ function CheckoutPage() {
       return;
     }
 
+    // Sprawdź czy dla opcji "Na miejscu" wybrano stolik
+    if (isTableRequired && !selectedTable) {
+      setError("Proszę wybrać stolik dla opcji 'Na miejscu'.");
+      return;
+    }
+
     try {
       setProcessingOrder(true);
 
       const orderResponse = await createOrder();
       const orderId = orderResponse.data.id;
+      console.log("✅ 1. Order created:", orderId);
 
       await Promise.all(
         cart.map((item) =>
@@ -80,25 +93,50 @@ function CheckoutPage() {
           })
         )
       );
+      console.log("✅ 2. All items added to order");
+
+      console.log("🚚 3. Creating delivery...", {
+        deliveryOptionId: selectedDeliveryOption,
+        tableId: isTableRequired ? selectedTable : null,
+        notes,
+      });
 
       await createOrderDelivery(orderId, {
         deliveryOptionId: selectedDeliveryOption,
-        tableId: tableNumber || null,
+        tableId: isTableRequired ? selectedTable : null,
         notes,
+      });
+      console.log("✅ 3. Delivery created");
+
+      console.log("💳 4. Processing payment...", {
+        paymentMethodId: selectedPaymentMethod,
       });
 
       await processPayment(orderId, {
         paymentMethodId: selectedPaymentMethod,
       });
+      console.log("✅ 4. Payment processed");
 
       clearCart();
-      navigate("/thank-you", {
-        state: {
-          orderId,
-          totalAmount: totalPrice,
-        },
+      console.log("✅ 5. Cart cleared, navigating...");
+
+      console.log("✅ 5. About to navigate to thank-you");
+      console.log("📊 Data being sent:", {
+        orderId,
+        totalAmount: totalPrice,
       });
+      setTimeout(() => {
+        navigate("/thank-you", {
+          state: {
+            orderId,
+            totalAmount: totalPrice,
+          },
+        });
+
+        console.log("🎯 Navigate called to /thank-you");
+      }, 100);
     } catch (err) {
+      console.error("🚨 Error at step:", err);
       setError(`Nie udało się złożyć zamówienia: ${err.message}`);
       console.error(err);
     } finally {
@@ -114,6 +152,7 @@ function CheckoutPage() {
 
       {error && <div className="error-message">{error}</div>}
 
+      {/* Podsumowanie zamówienia */}
       <div className="checkout-section">
         <h2>Twoje zamówienie</h2>
         <div className="order-summary">
@@ -134,6 +173,7 @@ function CheckoutPage() {
         </div>
       </div>
 
+      {/* Opcje dostawy */}
       <div className="checkout-section">
         <h2>Wybierz opcję dostawy</h2>
         <div className="delivery-options">
@@ -145,7 +185,11 @@ function CheckoutPage() {
                   name="deliveryOption"
                   value={option.id}
                   checked={selectedDeliveryOption === option.id}
-                  onChange={(e) => setSelectedDeliveryOption(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedDeliveryOption(e.target.value);
+                    // Reset wyboru stolika gdy zmienia się opcja dostawy
+                    setSelectedTable("");
+                  }}
                 />
                 <div className="option-details">
                   <h3>{option.name}</h3>
@@ -157,24 +201,15 @@ function CheckoutPage() {
           ))}
         </div>
 
-        {selectedDeliveryOption &&
-          deliveryOptions.find(
-            (option) =>
-              option.id === selectedDeliveryOption &&
-              option.name === "Na miejscu"
-          ) && (
-            <div className="table-number-input">
-              <label htmlFor="tableNumber">Numer stolika:</label>
-              <input
-                type="number"
-                id="tableNumber"
-                value={tableNumber}
-                onChange={(e) => setTableNumber(e.target.value)}
-                min="1"
-                required
-              />
-            </div>
-          )}
+        {/* Wybór stolika - tylko dla opcji "Na miejscu" */}
+        {isTableRequired && (
+          <div className="table-selection-section">
+            <TableSelection
+              selectedTable={selectedTable}
+              onTableSelect={setSelectedTable}
+            />
+          </div>
+        )}
 
         <div className="notes-input">
           <label htmlFor="notes">Dodatkowe uwagi:</label>
@@ -187,6 +222,7 @@ function CheckoutPage() {
         </div>
       </div>
 
+      {/* Metody płatności */}
       <div className="checkout-section">
         <h2>Wybierz metodę płatności</h2>
         <div className="payment-methods">

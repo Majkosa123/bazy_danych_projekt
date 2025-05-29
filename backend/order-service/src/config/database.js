@@ -17,10 +17,7 @@ const connect = async () => {
     await sequelize.authenticate();
     console.log("Połączono z PostgreSQL.");
 
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("Połączono z MongoDB.");
 
     return true;

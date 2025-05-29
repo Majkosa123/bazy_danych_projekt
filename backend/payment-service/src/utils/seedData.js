@@ -5,19 +5,19 @@ const seedPaymentMethods = async () => {
   try {
     const paymentMethods = [
       {
-        name: "Karta",
+        name: "card",
         description: "Płatność kartą kredytową lub debetową",
         isActive: true,
         processingFee: 0.0,
       },
       {
-        name: "Gotówka",
+        name: "cash",
         description: "Płatność gotówką przy odbiorze",
         isActive: true,
         processingFee: 0.0,
       },
       {
-        name: "Aplikacja mobilna",
+        name: "mobile_app",
         description: "Płatność przez aplikację mobilną restauracji",
         isActive: true,
         processingFee: 0.0,

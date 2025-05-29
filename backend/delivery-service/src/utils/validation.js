@@ -16,8 +16,9 @@ const createTableSchema = Joi.object({
 
 const createOrderDeliverySchema = Joi.object({
   deliveryOptionId: Joi.string().uuid().required(),
-  tableId: Joi.string().uuid().optional(),
-  notes: Joi.string().optional(),
+
+  tableId: Joi.string().uuid().allow(null).optional(),
+  notes: Joi.string().allow("").optional(),
 });
 
 const validateRequest = (schema) => {

@@ -44,7 +44,6 @@ const seedCategories = async () => {
 
 const seedProducts = async (categories) => {
   try {
-    // Sprawdzamy czy kategorie są dostępne
     if (!categories || categories.length === 0) {
       categories = await Category.findAll();
       if (categories.length === 0) {
@@ -52,7 +51,6 @@ const seedProducts = async (categories) => {
       }
     }
 
-    // Mapowanie kategorii na ich id
     const categoryMap = categories.reduce((map, category) => {
       map[category.name] = category.id;
       return map;
@@ -78,6 +76,14 @@ const seedProducts = async (categories) => {
         name: "Burger Drobiowy",
         description:
           "Delikatny burger z kurczaka z sałatą i sosem musztardowym",
+        price: 16.99,
+        isAvailable: true,
+        categoryId: categoryMap["Burgery"],
+      },
+      {
+        name: "Burger Drwala",
+        description:
+          "Delikatny burger z wołowy z serem camembert w panierce, sałatą, smazoną cebulką i sosem majonezowym",
         price: 16.99,
         isAvailable: true,
         categoryId: categoryMap["Burgery"],
@@ -163,7 +169,6 @@ const seedProducts = async (categories) => {
 
 const seedProductDetails = async (products) => {
   try {
-    // Sprawdzamy czy produkty są dostępne
     if (!products || products.length === 0) {
       products = await Product.findAll();
       if (products.length === 0) {
@@ -171,22 +176,19 @@ const seedProductDetails = async (products) => {
       }
     }
 
-    // Dla każdego produktu dodajemy szczegóły
     for (const product of products) {
-      // Sprawdź czy już istnieją szczegóły dla tego produktu
       const existingDetails = await ProductDetail.findOne({
         productId: product.id,
       });
 
       if (existingDetails) {
-        continue; // Przechodzimy do następnego produktu
+        continue;
       }
 
       let ingredients = [];
       let nutritionalValues = {};
       let allergens = [];
 
-      // Dodajemy przykładowe dane w zależności od nazwy produktu
       if (product.name.toLowerCase().includes("burger")) {
         ingredients = [
           { name: "Bułka", isAllergen: true },

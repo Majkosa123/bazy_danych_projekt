@@ -7,6 +7,11 @@ function Cart() {
     useContext(CartContext);
   const navigate = useNavigate();
 
+  const formatPrice = (price) => {
+    const numPrice = parseFloat(price);
+    return isNaN(numPrice) ? 0 : numPrice;
+  };
+
   if (cart.length === 0) {
     return (
       <div className="empty-cart">
@@ -28,9 +33,11 @@ function Cart() {
           <div key={index} className="cart-item">
             <div className="item-details">
               <h3>{item.name}</h3>
-              <p className="item-price">{item.price.toFixed(2)} zł</p>
+              <p className="item-price">
+                {formatPrice(item.price).toFixed(2)} zł
+              </p>
 
-              {item.customizations.length > 0 && (
+              {item.customizations && item.customizations.length > 0 && (
                 <div className="item-customizations">
                   <p>Dodatki:</p>
                   <ul>
@@ -40,7 +47,11 @@ function Cart() {
                         {customization.priceModifier > 0 && (
                           <span>
                             {" "}
-                            +{customization.priceModifier.toFixed(2)} zł
+                            +
+                            {formatPrice(customization.priceModifier).toFixed(
+                              2
+                            )}{" "}
+                            zł
                           </span>
                         )}
                       </li>
@@ -73,7 +84,9 @@ function Cart() {
                 </button>
               </div>
 
-              <div className="item-total">{item.totalPrice.toFixed(2)} zł</div>
+              <div className="item-total">
+                {formatPrice(item.totalPrice).toFixed(2)} zł
+              </div>
 
               <button
                 onClick={() => removeFromCart(index)}
@@ -89,7 +102,7 @@ function Cart() {
       <div className="cart-summary">
         <div className="cart-total">
           <h2>Razem:</h2>
-          <h2>{totalPrice.toFixed(2)} zł</h2>
+          <h2>{formatPrice(totalPrice).toFixed(2)} zł</h2>
         </div>
 
         <div className="cart-actions">
