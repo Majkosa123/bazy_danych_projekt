@@ -35,7 +35,6 @@ function Cart() {
     setPromoError("");
 
     try {
-      // Tworzymy tymczasowe zamówienie żeby sprawdzić kod
       const tempOrderData = {
         totalAmount: totalPrice,
         currency: "PLN",

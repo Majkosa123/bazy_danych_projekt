@@ -23,7 +23,7 @@ function CheckoutPage() {
   const [selectedTable, setSelectedTable] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Nowe stany dla adresu dostawy
+  // stany dla adresu dostawy
   const [deliveryAddress, setDeliveryAddress] = useState({
     street: "",
     houseNumber: "",

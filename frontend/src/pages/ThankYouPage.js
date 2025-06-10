@@ -7,7 +7,6 @@ function ThankYouPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // DODAJ DEBUG
   console.log("🎯 ThankYouPage loaded");
   console.log("📊 Location:", location);
   console.log("📊 Location state:", location.state);
@@ -19,15 +18,12 @@ function ThankYouPage() {
   // Pobierz orderId ze stanu przekazanego przez nawigację
   const { orderId, totalAmount } = location.state || {};
 
-  // DODAJ DEBUG
   console.log("📊 Extracted orderId:", orderId);
   console.log("📊 Extracted totalAmount:", totalAmount);
 
   useEffect(() => {
-    // DODAJ DEBUG
     console.log("🔍 UseEffect - checking orderId:", orderId);
 
-    // Jeśli nie ma orderId, przekieruj do strony głównej
     if (!orderId) {
       console.log("❌ No orderId, redirecting to home");
       navigate("/");
@@ -35,8 +31,6 @@ function ThankYouPage() {
     }
 
     console.log("✅ OrderId found, fetching order details");
-
-    // ... reszta kodu
 
     const fetchOrderDetails = async () => {
       try {

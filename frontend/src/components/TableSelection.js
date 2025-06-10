@@ -1,4 +1,3 @@
-// frontend/src/components/TableSelection.js
 import React, { useState, useEffect } from "react";
 import { getAvailableTables } from "../api/deliveryApi";
 
@@ -24,7 +23,6 @@ function TableSelection({ selectedTable, onTableSelect }) {
     loadTables();
   }, []);
 
-  // Inline styles - na pewno zadziałają
   const containerStyle = {
     marginTop: "20px",
     padding: "15px",
