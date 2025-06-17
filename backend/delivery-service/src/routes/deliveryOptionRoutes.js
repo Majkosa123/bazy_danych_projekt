@@ -9,10 +9,5 @@ const router = express.Router();
 
 router.get("/", deliveryOptionController.getAllDeliveryOptions);
 router.get("/:id", deliveryOptionController.getDeliveryOptionById);
-router.post(
-  "/",
-  validateRequest(createDeliveryOptionSchema),
-  deliveryOptionController.createDeliveryOption
-);
 
 module.exports = router;

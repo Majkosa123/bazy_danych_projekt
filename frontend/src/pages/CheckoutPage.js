@@ -122,7 +122,7 @@ function CheckoutPage() {
 
       const orderResponse = await createOrder();
       const orderId = orderResponse.data.id;
-      console.log("✅ 1. Order created:", orderId);
+      console.log("1. Order created:", orderId);
 
       await Promise.all(
         cart.map((item) =>
@@ -134,7 +134,7 @@ function CheckoutPage() {
           })
         )
       );
-      console.log("✅ 2. All items added to order");
+      console.log("2. All items added to order");
 
       // Przygotuj notatki z adresem dostawy
       let finalNotes = notes;
@@ -159,7 +159,7 @@ ${
           : addressText;
       }
 
-      console.log("🚚 3. Creating delivery...", {
+      console.log("3. Creating delivery...", {
         deliveryOptionId: selectedDeliveryOption,
         tableId: isTableRequired ? selectedTable : null,
         notes: finalNotes,
@@ -170,22 +170,22 @@ ${
         tableId: isTableRequired ? selectedTable : null,
         notes: finalNotes,
       });
-      console.log("✅ 3. Delivery created");
+      console.log("3. Delivery created");
 
-      console.log("💳 4. Processing payment...", {
+      console.log("4. Processing payment...", {
         paymentMethodId: selectedPaymentMethod,
       });
 
       await processPayment(orderId, {
         paymentMethodId: selectedPaymentMethod,
       });
-      console.log("✅ 4. Payment processed");
+      console.log("4. Payment processed");
 
       clearCart();
-      console.log("✅ 5. Cart cleared, navigating...");
+      console.log("5. Cart cleared, navigating...");
 
-      console.log("✅ 5. About to navigate to thank-you");
-      console.log("📊 Data being sent:", {
+      console.log("5. About to navigate to thank-you");
+      console.log("Data being sent:", {
         orderId,
         totalAmount: totalPrice,
       });
@@ -197,10 +197,10 @@ ${
           },
         });
 
-        console.log("🎯 Navigate called to /thank-you");
+        console.log("Navigate called to /thank-you");
       }, 100);
     } catch (err) {
-      console.error("🚨 Error at step:", err);
+      console.error("Error at step:", err);
       setError(`Nie udało się złożyć zamówienia: ${err.message}`);
       console.error(err);
     } finally {

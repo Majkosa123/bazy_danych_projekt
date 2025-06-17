@@ -6,7 +6,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Funkcja pomocnicza do bezpiecznego parsowania liczb
+  // do parsowania liczb
   const safeParseFloat = (value) => {
     const parsed = parseFloat(value);
     return isNaN(parsed) ? 0 : parsed;

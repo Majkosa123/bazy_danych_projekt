@@ -71,34 +71,20 @@ exports.addItemToOrder = async (req, res, next) => {
     const { productId, quantity, customizations, specialInstructions } =
       req.body;
 
-    console.log("🎯 DEBUG - Otrzymano request:");
-    console.log("  orderId:", orderId);
-    console.log("  productId:", productId);
-    console.log("  quantity:", quantity);
-    console.log("  customizations:", customizations);
-    console.log("  specialInstructions:", specialInstructions);
-
     const order = await Order.findByPk(orderId);
     if (!order) {
-      console.log("❌ Order nie znaleziony:", orderId);
       const error = new Error("Nie znaleziono zamówienia o podanym ID");
       error.statusCode = 404;
       return next(error);
     }
-    console.log("✅ Order znaleziony:", order.id);
 
-    console.log("🔍 Sprawdzam produkt w menu-service...");
+    console.log("Sprawdzam produkt w menu-service...");
     const product = await menuService.getProductById(productId);
-    if (!product) {
-      console.log("❌ Produkt nie znaleziony:", productId);
-      const error = new Error("Nie znaleziono produktu o podanym ID");
-      error.statusCode = 404;
-      return next(error);
-    }
-    console.log("✅ Produkt znaleziony:", product.name, "Cena:", product.price);
+
+    console.log("Produkt znaleziony:", product.name, "Cena:", product.price);
 
     if (!product.isAvailable) {
-      console.log("❌ Produkt niedostępny:", productId);
+      console.log("Produkt niedostępny:", productId);
       const error = new Error("Ten produkt nie jest obecnie dostępny");
       error.statusCode = 400;
       return next(error);
@@ -106,9 +92,9 @@ exports.addItemToOrder = async (req, res, next) => {
 
     const unitPrice = parseFloat(product.price);
     const totalPrice = unitPrice * quantity;
-    console.log("💰 Ceny - jednostkowa:", unitPrice, "całkowita:", totalPrice);
+    console.log("Ceny - jednostkowa:", unitPrice, "całkowita:", totalPrice);
 
-    console.log("💾 Tworzę OrderItem...");
+    console.log("Tworzę OrderItem");
     const orderItem = await OrderItem.create(
       {
         orderId,
@@ -119,29 +105,24 @@ exports.addItemToOrder = async (req, res, next) => {
       },
       { transaction }
     );
-    console.log("✅ OrderItem utworzony:", orderItem.id);
+    console.log("OrderItem utworzony:", orderItem.id);
 
     if ((customizations && customizations.length > 0) || specialInstructions) {
-      console.log("🔧 Tworzę customizations...");
+      console.log("Tworzę customizations...");
       await OrderItemCustomization.create({
         orderItemId: orderItem.id,
         customizations: customizations || [],
         specialInstructions: specialInstructions || "",
       });
-      console.log("✅ Customizations utworzone");
+      console.log("Customizations utworzone");
     }
 
     const newTotalAmount = parseFloat(order.totalAmount) + totalPrice;
-    console.log(
-      "🔄 Aktualizuję order total:",
-      order.totalAmount,
-      "→",
-      newTotalAmount
-    );
+
     await order.update({ totalAmount: newTotalAmount }, { transaction });
 
     await transaction.commit();
-    console.log("✅ Transakcja zakończona pomyślnie");
+    console.log("Transakcja zakończona pomyślnie");
 
     res.status(201).json({
       status: "success",
@@ -153,7 +134,7 @@ exports.addItemToOrder = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("🚨 BŁĄD w addItemToOrder:", error);
+    console.error("BŁĄD w addItemToOrder:", error);
     await transaction.rollback();
     next(error);
   }

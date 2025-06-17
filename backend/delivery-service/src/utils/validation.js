@@ -1,12 +1,5 @@
 const Joi = require("joi");
 
-const createDeliveryOptionSchema = Joi.object({
-  name: Joi.string().required(),
-  description: Joi.string().optional(),
-  isActive: Joi.boolean().default(true),
-  estimatedTimeMinutes: Joi.number().integer().min(1).default(15),
-});
-
 const createTableSchema = Joi.object({
   number: Joi.number().integer().required(),
   capacity: Joi.number().integer().min(1).required(),

@@ -45,9 +45,9 @@ function Cart() {
       setPromoDiscount(response.data);
       setAppliedPromoCode(promoCode);
       setPromoCode("");
-      console.log("✅ Kod rabatowy zastosowany:", response.data);
+      console.log("Kod rabatowy zastosowany:", response.data);
     } catch (error) {
-      console.error("❌ Błąd kodu rabatowego:", error);
+      console.error("Błąd kodu rabatowego:", error);
       setPromoError(
         error.response?.data?.message ||
           "Nieprawidłowy kod rabatowy lub kod wygasł"
@@ -165,7 +165,7 @@ function Cart() {
 
       {/* SEKCJA KODU RABATOWEGO */}
       <div className="promo-code-section">
-        <h3>🎟️ Kod rabatowy</h3>
+        <h3>Kod rabatowy</h3>
 
         {!appliedPromoCode ? (
           <div className="promo-code-input">
@@ -187,7 +187,7 @@ function Cart() {
               </button>
             </div>
 
-            {promoError && <div className="promo-error">❌ {promoError}</div>}
+            {promoError && <div className="promo-error">{promoError}</div>}
 
             <div className="available-codes">
               <p>
@@ -201,17 +201,17 @@ function Cart() {
         ) : (
           <div className="applied-promo">
             <div className="promo-success">
-              ✅ Kod <strong>{appliedPromoCode}</strong> został zastosowany!
+              Kod <strong>{appliedPromoCode}</strong> został zastosowany!
               <button
                 onClick={handleRemovePromoCode}
                 className="remove-promo-button"
               >
-                ❌ Usuń
+                Usuń
               </button>
             </div>
             <div className="promo-details">
               <p>
-                💰 Oszczędzasz:{" "}
+                Oszczędzasz:{" "}
                 <strong style={{ color: "#28a745" }}>
                   {savings.toFixed(2)} zł
                 </strong>
@@ -219,7 +219,7 @@ function Cart() {
               {promoDiscount.promoCode && (
                 <p>
                   <small>
-                    📋{" "}
+                    {" "}
                     {promoDiscount.promoCode.description ||
                       "Rabat został naliczony"}
                   </small>

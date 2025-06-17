@@ -10,9 +10,9 @@ const {
 const router = express.Router();
 
 const debugMiddleware = (req, res, next) => {
-  console.log("🎯 Route hit:", req.method, req.path);
-  console.log("🎯 Body:", JSON.stringify(req.body, null, 2));
-  console.log("🎯 Params:", req.params);
+  console.log("Route hit:", req.method, req.path);
+  console.log("Body:", JSON.stringify(req.body, null, 2));
+  console.log("Params:", req.params);
   next();
 };
 

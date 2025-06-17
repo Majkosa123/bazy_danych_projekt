@@ -26,7 +26,7 @@ const validateRequest = (schema) => {
         .map((detail) => detail.message)
         .join(", ");
 
-      console.error("❌ Validation error:", errorMessage);
+      console.error("Validation error:", errorMessage);
 
       return res.status(400).json({
         status: "error",
@@ -34,7 +34,7 @@ const validateRequest = (schema) => {
       });
     }
 
-    console.log("✅ Validation passed");
+    console.log("Validation passed");
     next();
   };
 };

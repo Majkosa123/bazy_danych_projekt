@@ -6,8 +6,6 @@ exports.validatePromoCode = async (req, res, next) => {
   try {
     const { code, orderId, totalAmount } = req.body;
 
-    console.log("🎟️ Validating promo code:", { code, orderId, totalAmount });
-
     const promoCode = await PromoCode.findOne({
       where: {
         code,
@@ -64,7 +62,6 @@ exports.validatePromoCode = async (req, res, next) => {
           code: promoCode.code,
           discountType: promoCode.discountType,
           discountValue: promoCode.discountValue,
-          description: getPromoDescription(promoCode),
         },
         discountAmount,
         finalAmount,
@@ -73,22 +70,7 @@ exports.validatePromoCode = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("❌ Promo code validation error:", error);
+    console.error(" Promo code validation error:", error);
     next(error);
   }
-};
-
-const getPromoDescription = (promoCode) => {
-  const discountText =
-    promoCode.discountType === "percentage"
-      ? `${promoCode.discountValue}%`
-      : `${promoCode.discountValue} zł`;
-
-  const descriptions = {
-    WELCOME10: `Rabat powitalny ${discountText} dla nowych klientów`,
-    FIXED20: `Stały rabat ${discountText} od zamówienia`,
-    SUMMER25: `Letnia promocja ${discountText} rabatu`,
-  };
-
-  return descriptions[promoCode.code] || `Rabat ${discountText}`;
 };

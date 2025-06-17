@@ -39,7 +39,7 @@ const seedDeliveryOptions = async () => {
 const seedTables = async () => {
   try {
     const tables = [
-      { number: 1, capacity: 2, isAvailable: true, location: "Przy oknie" },
+      { number: 1, capacity: 2, isAvailable: false, location: "Przy oknie" },
       { number: 2, capacity: 4, isAvailable: true, location: "Środek sali" },
       { number: 3, capacity: 2, isAvailable: true, location: "Przy ścianie" },
       { number: 4, capacity: 6, isAvailable: true, location: "Duży stół" },

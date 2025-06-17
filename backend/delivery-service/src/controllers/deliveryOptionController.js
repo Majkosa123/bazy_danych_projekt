@@ -34,17 +34,3 @@ exports.getDeliveryOptionById = async (req, res, next) => {
     next(error);
   }
 };
-
-exports.createDeliveryOption = async (req, res, next) => {
-  try {
-    const deliveryOption = await DeliveryOption.create(req.body);
-
-    res.status(201).json({
-      status: "success",
-      message: "Utworzono nową opcję dostawy",
-      data: deliveryOption,
-    });
-  } catch (error) {
-    next(error);
-  }
-};

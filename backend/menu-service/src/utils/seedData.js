@@ -358,7 +358,7 @@ const seedProductDetails = async (products) => {
         };
       }
 
-      // Tylko twórz szczegóły jeśli mamy składniki
+      // dodawanie szczegółow jeśli mamy składniki
       if (ingredients.length > 0) {
         await ProductDetail.create({
           productId: product.id,
