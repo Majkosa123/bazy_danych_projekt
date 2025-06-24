@@ -36,17 +36,17 @@ export const validatePromoCode = async (code, orderData) => {
       totalAmount: orderData.totalAmount || 0,
     };
 
-    console.log("🎟️ Sending promo code request:", requestData);
+    console.log("Sending promo code request:", requestData);
 
     const response = await axios.post(
       `${BASE_URL}/promo-codes/validate`,
       requestData
     );
 
-    console.log("✅ Promo code response:", response.data);
+    console.log("Promo code response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Promo code error:", error.response?.data);
+    console.error("Promo code error:", error.response?.data);
     console.error("Full error:", error);
     throw error;
   }
