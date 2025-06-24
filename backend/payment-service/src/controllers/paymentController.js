@@ -5,6 +5,8 @@ const PaymentReceipt = require("../models/mongoose/paymentReceipt");
 const orderService = require("../services/orderService");
 const paymentGateway = require("../services/paymentGateway");
 const { sequelize } = require("../config/database");
+const userService = require("../services/userService");
+const jwt = require("jsonwebtoken");
 
 exports.processPayment = async (req, res, next) => {
   console.log("Payment request received:");
@@ -16,7 +18,18 @@ exports.processPayment = async (req, res, next) => {
 
   try {
     const { orderId } = req.params;
-    const { paymentMethodId, promoCodeId, customerInfo } = req.body;
+    const { paymentMethodId, promoCodeId, customerInfo, userToken } = req.body;
+
+    let userId = null;
+    if (userToken) {
+      try {
+        const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
+        userId = decoded.userId;
+        console.log("Użytkownik zalogowany:", userId);
+      } catch (err) {
+        console.log("Błędny token użytkownika, kontynuowanie jako gość");
+      }
+    }
 
     console.log("Looking for order:", orderId);
     const order = await orderService.getOrderById(orderId);
@@ -149,6 +162,14 @@ exports.processPayment = async (req, res, next) => {
 
       await transaction.commit();
 
+      if (userId) {
+        await userService.addLoyaltyPointsForOrder(
+          userId,
+          finalAmount,
+          orderId
+        );
+      }
+
       res.status(200).json({
         status: "success",
         message: "Płatność została zrealizowana pomyślnie",
@@ -166,6 +187,7 @@ exports.processPayment = async (req, res, next) => {
             issueDate: receipt.issueDate,
             totalAmount: receipt.totalAmount,
           },
+          loyaltyPointsAdded: userId ? Math.floor(finalAmount / 10) : 0,
         },
       });
     } catch (paymentError) {

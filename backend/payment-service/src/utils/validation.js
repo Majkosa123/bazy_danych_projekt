@@ -9,6 +9,7 @@ const validatePromoCodeSchema = Joi.object({
 const createPaymentSchema = Joi.object({
   paymentMethodId: Joi.string().uuid().required(),
   promoCodeId: Joi.string().uuid().optional(),
+  userToken: Joi.string().optional(),
   customerInfo: Joi.object({
     name: Joi.string().optional(),
     email: Joi.string().email().optional(),
@@ -17,7 +18,7 @@ const createPaymentSchema = Joi.object({
 
 const validateRequest = (schema) => {
   return (req, res, next) => {
-    console.log("🔍 Validating request body:", req.body);
+    console.log(" Validating request body:", req.body);
 
     const { error } = schema.validate(req.body);
 
