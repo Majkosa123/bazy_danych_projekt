@@ -1,6 +1,3 @@
-// backend/payment-service/tests/unit/controllers.test.js
-
-// Import mockowanych modeli (muszą być na górze!)
 const Payment = require("../../src/models/sequelize/payment");
 const PaymentMethod = require("../../src/models/sequelize/paymentMethod");
 const PromoCode = require("../../src/models/sequelize/promoCode");
@@ -10,7 +7,6 @@ const paymentGateway = require("../../src/services/paymentGateway");
 const userService = require("../../src/services/userService");
 const jwt = require("jsonwebtoken");
 
-// Import kontrolerów PO mockach
 const paymentController = require("../../src/controllers/paymentController");
 const paymentMethodController = require("../../src/controllers/paymentMethodController");
 const promoCodeController = require("../../src/controllers/promoCodeController");
@@ -123,7 +119,7 @@ describe("Payment Service Controllers Tests", () => {
         expect(res.json).toHaveBeenCalledWith(
           expect.objectContaining({
             status: "success",
-            message: "Płatność została zrealizowana pomyślnie", // Dopasuj do rzeczywistego tekstu
+            message: "Płatność została zrealizowana pomyślnie",
           })
         );
       });
@@ -152,8 +148,8 @@ describe("Payment Service Controllers Tests", () => {
           discountType: "percentage",
           discountValue: "10.00",
           isActive: true,
-          startDate: new Date(Date.now() - 86400000), // wczoraj
-          endDate: new Date(Date.now() + 86400000), // jutro
+          startDate: new Date(Date.now() - 86400000),
+          endDate: new Date(Date.now() + 86400000),
           usageLimit: 100,
           usageCount: 50,
           increment: jest.fn(),
@@ -185,7 +181,7 @@ describe("Payment Service Controllers Tests", () => {
 
         expect(Payment.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            amount: 90.0, // 100 - 10% = 90
+            amount: 90.0,
             discountAmount: 10.0,
           }),
           { transaction: mockTransaction }
@@ -245,8 +241,8 @@ describe("Payment Service Controllers Tests", () => {
           id: "expired-promo",
           code: "EXPIRED",
           isActive: false,
-          startDate: new Date(Date.now() - 172800000), // 2 dni temu
-          endDate: new Date(Date.now() - 86400000), // wczoraj
+          startDate: new Date(Date.now() - 172800000),
+          endDate: new Date(Date.now() - 86400000),
         };
 
         orderService.getOrderById.mockResolvedValue(mockOrder);
@@ -310,9 +306,6 @@ describe("Payment Service Controllers Tests", () => {
         sequelize.transaction.mockResolvedValue(mockTransaction);
 
         await paymentController.processPayment(req, res, next);
-
-        // userService może nie być wywołany w tej wersji kodu
-        // expect(userService.addLoyaltyPoints).toHaveBeenCalledWith('user-123', 5);
       });
     });
   });
@@ -480,7 +473,7 @@ describe("Payment Service Controllers Tests", () => {
 
         const mockOrder = {
           id: "order-123",
-          totalAmount: "50.00", // Za mało!
+          totalAmount: "50.00",
         };
 
         PromoCode.findOne.mockResolvedValue(mockPromoCode);
@@ -507,7 +500,7 @@ describe("Payment Service Controllers Tests", () => {
           code: "LIMITED",
           isActive: true,
           usageLimit: 10,
-          usageCount: 10, // Limit osiągnięty!
+          usageCount: 10,
         };
 
         PromoCode.findOne.mockResolvedValue(mockPromoCode);

@@ -1,15 +1,10 @@
-// backend/order-service/tests/unit/controllers.test.js
-
-// Import mockowanych modeli (muszą być na górze!)
 const Order = require("../../src/models/sequelize/order");
 const OrderItem = require("../../src/models/sequelize/orderItem");
 const OrderItemCustomization = require("../../src/models/mongoose/orderItemCustomization");
 const menuService = require("../../src/services/menuService");
 
-// Mock menuService
 jest.mock("../../src/services/menuService");
 
-// Import kontrolera PO mockach
 const orderController = require("../../src/controllers/orderController");
 
 describe("Order Controller Tests", () => {
@@ -27,7 +22,6 @@ describe("Order Controller Tests", () => {
     };
     next = jest.fn();
 
-    // Reset wszystkich mocków przed każdym testem
     jest.clearAllMocks();
   });
 
@@ -37,7 +31,6 @@ describe("Order Controller Tests", () => {
         userId: "test-user-123",
       };
 
-      // Mock bazy danych
       Order.create.mockResolvedValue({
         id: "order-123",
         userId: "test-user-123",
@@ -169,7 +162,6 @@ describe("Order Controller Tests", () => {
       OrderItem.create.mockResolvedValue(mockOrderItem);
       OrderItemCustomization.create.mockResolvedValue({});
 
-      // Mock transakcji
       const mockTransaction = {
         commit: jest.fn(),
         rollback: jest.fn(),

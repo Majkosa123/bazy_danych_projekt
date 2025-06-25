@@ -8,8 +8,7 @@ describe("Authentication Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup default mocks for each test
-    User.findOne.mockResolvedValue(null); // No existing user by default
+    User.findOne.mockResolvedValue(null);
     User.create.mockResolvedValue({
       id: "test-user-id",
       email: "test@test.com",
@@ -56,7 +55,6 @@ describe("Authentication Integration Tests", () => {
         .post("/api/v1/users/register")
         .send(userData);
 
-      // Debug - sprawdź odpowiedź jeśli test nie przechodzi
       if (response.status !== 201) {
         console.log("Response status:", response.status);
         console.log("Response body:", response.body);

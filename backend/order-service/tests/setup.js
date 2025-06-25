@@ -1,5 +1,3 @@
-// backend/order-service/tests/setup.js
-
 // Mock modeli Sequelize
 jest.mock("../src/models/sequelize/order", () => ({
   create: jest.fn(),
@@ -63,19 +61,16 @@ jest.mock("../src/config/database", () => ({
   connect: jest.fn().mockResolvedValue(true),
 }));
 
-// Zmienne środowiskowe dla testów
 process.env.NODE_ENV = "test";
 process.env.DB_HOST = "localhost";
 process.env.DB_NAME = "test_orders";
 process.env.DB_USER = "test";
 process.env.DB_PASSWORD = "test";
 
-// Globalne przed każdym testem
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// Wyłącz logi podczas testów
 global.console = {
   ...console,
   log: jest.fn(),

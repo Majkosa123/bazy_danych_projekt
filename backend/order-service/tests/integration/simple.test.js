@@ -1,12 +1,8 @@
-// backend/order-service/tests/integration/simple.test.js
-
 const request = require("supertest");
 
-// Mock app zamiast prawdziwego (żeby uniknąć błędów DB)
 const mockApp = require("express")();
 mockApp.use(require("express").json());
 
-// Proste mocki endpointów
 mockApp.post("/api/v1/orders", (req, res) => {
   if (!req.body.items || req.body.items.length === 0) {
     return res.status(400).json({

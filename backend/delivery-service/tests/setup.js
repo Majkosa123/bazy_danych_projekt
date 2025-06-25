@@ -52,18 +52,15 @@ jest.mock("../src/config/database", () => ({
   connect: jest.fn().mockResolvedValue(true),
 }));
 
-// Zmienne środowiskowe dla testów
 process.env.NODE_ENV = "test";
 process.env.DB_HOST = "localhost";
 process.env.DB_NAME = "test_delivery";
 process.env.ORDER_SERVICE_URL = "http://localhost:3002/api/v1";
 
-// Globalne przed każdym testem
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// Wyłącz logi podczas testów
 global.console = {
   ...console,
   log: jest.fn(),

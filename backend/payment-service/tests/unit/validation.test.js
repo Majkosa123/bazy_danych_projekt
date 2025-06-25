@@ -1,8 +1,5 @@
-// backend/payment-service/tests/unit/validation.test.js
-
 const Joi = require("joi");
 
-// Proste testy validation tylko dla payment-service
 describe("Payment Validation Tests", () => {
   describe("Payment Method Validation", () => {
     test("should validate payment method ID format", () => {

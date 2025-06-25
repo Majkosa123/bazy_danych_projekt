@@ -1,12 +1,8 @@
-// backend/delivery-service/tests/unit/controllers.test.js
-
-// Import mockowanych modeli (muszą być na górze!)
 const DeliveryOption = require("../../src/models/sequelize/deliveryOption");
 const Table = require("../../src/models/sequelize/table");
 const OrderDelivery = require("../../src/models/sequelize/orderDelivery");
 const orderService = require("../../src/services/orderService");
 
-// Import kontrolerów PO mockach
 const deliveryOptionController = require("../../src/controllers/deliveryOptionController");
 const tableController = require("../../src/controllers/tableController");
 const orderDeliveryController = require("../../src/controllers/orderDeliveryController");
@@ -325,7 +321,6 @@ describe("Delivery Service Controllers Tests", () => {
         req.params.orderId = "order-123";
         req.body = {
           deliveryOptionId: "option-2",
-          // no tableId for takeout
         };
 
         const mockOrder = { id: "order-123" };
@@ -375,7 +370,7 @@ describe("Delivery Service Controllers Tests", () => {
         const mockTable = {
           id: "table-occupied",
           number: 5,
-          isAvailable: false, // Table is occupied
+          isAvailable: false,
         };
 
         orderService.getOrderById.mockResolvedValue(mockOrder);

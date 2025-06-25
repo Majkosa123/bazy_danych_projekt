@@ -8,7 +8,6 @@ describe("Menu Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup default mocks
     Product.findAll.mockResolvedValue([
       {
         id: "1",

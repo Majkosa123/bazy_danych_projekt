@@ -1,12 +1,8 @@
-// backend/delivery-service/tests/integration/delivery.test.js
-
 const request = require("supertest");
 
-// Mock app dla testów integracyjnych
 const mockApp = require("express")();
 mockApp.use(require("express").json());
 
-// Mock endpoints dla delivery service
 mockApp.get("/api/v1/delivery-options", (req, res) => {
   const mockDeliveryOptions = [
     {
@@ -277,7 +273,7 @@ describe("Delivery Service Integration Tests", () => {
         .expect(200);
 
       expect(response.body.status).toBe("success");
-      expect(response.body.results).toBe(2); // tables with capacity >= 4
+      expect(response.body.results).toBe(2);
       expect(response.body.message).toBe("Stoliki dla min. 4 osób");
     });
   });
@@ -358,7 +354,6 @@ describe("Delivery Service Integration Tests", () => {
     test("should create order delivery for takeout (no table)", async () => {
       const deliveryData = {
         deliveryOptionId: "option-2",
-        // no tableId for takeout
       };
 
       const response = await request(mockApp)

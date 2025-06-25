@@ -2,12 +2,10 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:3005/api/v1";
 
-// Pomocnicza funkcja do pobierania tokena z localStorage
 const getToken = () => {
   return localStorage.getItem("userToken");
 };
 
-// Pomocnicza funkcja do nagłówków z tokenem
 const getAuthHeaders = () => {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -19,7 +17,6 @@ export const registerUser = async (userData) => {
   try {
     const response = await axios.post(`${BASE_URL}/users/register`, userData);
 
-    // Automatycznie zapisz token po rejestracji
     if (response.data.data.token) {
       localStorage.setItem("userToken", response.data.data.token);
       localStorage.setItem("userData", JSON.stringify(response.data.data.user));
@@ -36,7 +33,6 @@ export const loginUser = async (credentials) => {
   try {
     const response = await axios.post(`${BASE_URL}/users/login`, credentials);
 
-    // Automatycznie zapisz token po logowaniu
     if (response.data.data.token) {
       localStorage.setItem("userToken", response.data.data.token);
       localStorage.setItem("userData", JSON.stringify(response.data.data.user));
@@ -47,20 +43,6 @@ export const loginUser = async (credentials) => {
     console.error("Błąd podczas logowania:", error);
     throw error;
   }
-};
-
-export const logoutUser = () => {
-  localStorage.removeItem("userToken");
-  localStorage.removeItem("userData");
-};
-
-export const getCurrentUser = () => {
-  const userData = localStorage.getItem("userData");
-  return userData ? JSON.parse(userData) : null;
-};
-
-export const isUserLoggedIn = () => {
-  return !!getToken();
 };
 
 export const getUserProfile = async () => {
@@ -220,16 +202,13 @@ export const getAllFeedback = async () => {
   }
 };
 
-//payment api integracja
-
-// Funkcja do dodania tokena użytkownika do płatności
 export const addUserTokenToPayment = (paymentData) => {
   const token = getToken();
   if (token) {
     return {
       ...paymentData,
-      userToken: token, // Dodaje token do payment request
+      userToken: token,
     };
   }
-  return paymentData; // Jeśli brak tokena (gość), zwraca bez zmian
+  return paymentData;
 };

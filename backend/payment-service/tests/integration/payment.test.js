@@ -1,13 +1,9 @@
-// backend/payment-service/tests/integration/payment.test.js
-
 const request = require("supertest");
 const express = require("express");
 
-// Compact mock app
 const app = express();
 app.use(express.json());
 
-// Mock data
 const paymentMethods = [
   {
     id: "method-1",
@@ -39,7 +35,6 @@ const promoCodes = {
   EXPIRED: { expired: true },
 };
 
-// Compact endpoints
 app.get("/api/v1/payment-methods", (req, res) => {
   res.json({
     status: "success",
@@ -68,12 +63,10 @@ app.post("/api/v1/promo-codes/validate", (req, res) => {
   }
 
   if (totalAmount < promo.minOrderValue) {
-    return res
-      .status(400)
-      .json({
-        status: "error",
-        message: `Minimalna wartość: ${promo.minOrderValue} PLN`,
-      });
+    return res.status(400).json({
+      status: "error",
+      message: `Minimalna wartość: ${promo.minOrderValue} PLN`,
+    });
   }
 
   const discountAmount =
@@ -271,13 +264,11 @@ describe("Payment Service Integration Tests", () => {
     });
 
     test("should reject payment errors", async () => {
-      // Missing payment method
       await request(app)
         .post("/api/v1/orders/order-123/payment")
         .send({})
         .expect(400);
 
-      // Invalid payment method
       await request(app)
         .post("/api/v1/orders/order-123/payment")
         .send({ paymentMethodId: "nonexistent" })
@@ -316,13 +307,11 @@ describe("Payment Service Integration Tests", () => {
     });
 
     test("should reject invalid refund requests", async () => {
-      // Invalid amount
       await request(app)
         .post("/api/v1/payments/payment-123/refund")
         .send({ amount: 0 })
         .expect(400);
 
-      // Nonexistent payment
       await request(app)
         .post("/api/v1/payments/nonexistent/refund")
         .send({ amount: 50 })
