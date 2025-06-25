@@ -1,4 +1,3 @@
-// backend/menu-service/tests/integration/menu.test.js
 const request = require("supertest");
 const app = require("../../src/app");
 const Product = require("../../src/models/sequelize/product");

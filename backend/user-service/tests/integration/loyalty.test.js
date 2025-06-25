@@ -11,7 +11,6 @@ describe("Loyalty Points Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup default mocks
     User.findOne.mockResolvedValue(null);
     User.create.mockResolvedValue({
       id: testUserId,
@@ -44,7 +43,6 @@ describe("Loyalty Points Integration Tests", () => {
 
   describe("GET /api/v1/loyalty/points", () => {
     test("should get user loyalty points", async () => {
-      // Setup mock dla getLoyaltyPoints
       User.findByPk.mockResolvedValue({
         id: testUserId,
         loyaltyPoints: 100,
@@ -56,7 +54,6 @@ describe("Loyalty Points Integration Tests", () => {
         .get("/api/v1/loyalty/points")
         .set("Authorization", `Bearer ${userToken}`);
 
-      // Debug jeśli test nie przechodzi
       if (response.status !== 200) {
         console.log("Points response:", response.body);
       }
@@ -67,7 +64,6 @@ describe("Loyalty Points Integration Tests", () => {
     });
 
     test("should reject request without token", async () => {
-      // Usuń mock authenticateToken dla tego testu
       const auth = require("../../src/middlewares/auth");
       auth.authenticateToken.mockImplementation((req, res, next) => {
         const error = new Error("Unauthorized");
@@ -84,13 +80,12 @@ describe("Loyalty Points Integration Tests", () => {
   describe("POST /api/v1/loyalty/points", () => {
     test("should add loyalty points (service call)", async () => {
       const pointsData = {
-        userId: "123e4567-e89b-12d3-a456-426614174000", // Valid UUID
+        userId: "123e4567-e89b-12d3-a456-426614174000",
         pointsChange: 25,
         type: "earned",
         description: "Test points",
       };
 
-      // Setup mocks dla service call
       User.findByPk.mockResolvedValue({
         id: pointsData.userId,
         loyaltyPoints: 50,
@@ -104,7 +99,6 @@ describe("Loyalty Points Integration Tests", () => {
         )
         .send(pointsData);
 
-      // Debug
       if (response.status !== 200) {
         console.log("Add points response:", response.body);
       }
@@ -114,7 +108,7 @@ describe("Loyalty Points Integration Tests", () => {
     });
 
     test("should reject service call without proper auth", async () => {
-      // Mock serviceAuth żeby odrzucił nieprawidłowy token
+      // serviceAuth żeby odrzucił nieprawidłowy token
       const serviceAuth = require("../../src/middlewares/serviceAuth");
       serviceAuth.serviceAuthOnly.mockImplementation((req, res, next) => {
         const error = new Error("Dostęp tylko dla serwisów systemowych");
@@ -140,12 +134,10 @@ describe("Loyalty Points Integration Tests", () => {
 
   describe("GET /api/v1/loyalty/offers", () => {
     test("should get special offers for user", async () => {
-      // Setup mock dla getSpecialOffers
       User.findByPk.mockResolvedValue({
         loyaltyPoints: 100,
       });
 
-      // Mock SpecialOffer.findAll
       const SpecialOffer = require("../../src/models/sequelize/specialOffer");
       SpecialOffer.findAll.mockResolvedValue([]);
 
@@ -153,12 +145,10 @@ describe("Loyalty Points Integration Tests", () => {
         .get("/api/v1/loyalty/offers")
         .set("Authorization", `Bearer ${userToken}`);
 
-      // Debug
       if (response.status === 500) {
         console.log("Offers error:", response.body);
       }
 
-      // Offers endpoint może zwrócić różne statusy - to jest OK
       expect([200, 404, 500, 401]).toContain(response.status);
 
       if (response.status === 200) {

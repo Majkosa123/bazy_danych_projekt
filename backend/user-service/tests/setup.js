@@ -1,4 +1,3 @@
-// Mock database connections before anything else
 jest.mock("../src/config/database", () => ({
   sequelize: {
     define: jest.fn(() => ({
@@ -21,7 +20,7 @@ jest.mock("../src/config/database", () => ({
   },
 }));
 
-// Mock User model z dodatkowymi metodami
+// Mock User model user
 jest.mock("../src/models/sequelize/user", () => ({
   findOne: jest.fn(),
   findByPk: jest.fn(),
@@ -92,22 +91,18 @@ jest.mock("../src/middlewares/serviceAuth", () => ({
   }),
 }));
 
-// Mock axios dla external service calls
 jest.mock("axios", () => ({
   post: jest.fn().mockResolvedValue({ data: { success: true } }),
   get: jest.fn().mockResolvedValue({ data: { success: true } }),
 }));
 
-// Suppress console.error i console.log w testach (opcjonalnie)
 global.console.error = jest.fn();
 
-// Setup zmiennych środowiskowych dla testów
 process.env.JWT_SECRET = "test_jwt_secret";
 process.env.JWT_EXPIRES_IN = "24h";
 process.env.SYSTEM_JWT_TOKEN = "secret_service_key_12345";
 process.env.NODE_ENV = "test";
 
-// Reset wszystkich mocków przed każdym testem
 beforeEach(() => {
   jest.clearAllMocks();
 });

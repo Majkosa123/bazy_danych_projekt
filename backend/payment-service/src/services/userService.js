@@ -31,6 +31,34 @@ const addLoyaltyPointsForOrder = async (userId, orderAmount, orderId) => {
   }
 };
 
+const addOrderToHistory = async (userId, orderData, authHeader) => {
+  try {
+    const response = await axios.post(
+      `${USER_SERVICE_URL}/api/v1/preferences/orders`,
+      {
+        ...orderData,
+        userId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authHeader || `Bearer ${process.env.SYSTEM_JWT_TOKEN}`,
+          "X-Service-Auth": process.env.SYSTEM_JWT_TOKEN,
+        },
+      }
+    );
+    console.log("Order history updated successfully for userId:", userId);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Błąd podczas dodawania do historii:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 module.exports = {
   addLoyaltyPointsForOrder,
+  addOrderToHistory,
 };

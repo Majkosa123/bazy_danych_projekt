@@ -16,7 +16,7 @@ const getOrderById = async (orderId) => {
 };
 
 const calculateLoyaltyPoints = (orderAmount) => {
-  // 1 punkt za każde 10 PLN wydanych
+  // 1 punkt to 10 PLN
   return Math.floor(orderAmount / 10);
 };
 

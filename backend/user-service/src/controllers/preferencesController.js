@@ -126,33 +126,54 @@ exports.getOrderHistory = async (req, res, next) => {
 
 exports.addOrderToHistory = async (req, res, next) => {
   try {
-    const { orderId, totalAmount, itemsCount } = req.body;
+    const { orderId, totalAmount, itemsCount, userId } = req.body;
 
-    // Pobieranie szczegółów zamówienia z order-service
+    if (!orderId || !totalAmount) {
+      const error = new Error("Brak wymaganych danych: orderId i totalAmount");
+      error.statusCode = 400;
+      return next(error);
+    }
+
     let orderDetails;
     try {
       orderDetails = await orderService.getOrderById(orderId);
+      console.log("Pobrano szczegóły zamówienia:", orderDetails);
     } catch (err) {
       console.error("Błąd podczas pobierania szczegółów zamówienia:", err);
-      // Kontynuujemy z podstawowymi danymi
-      orderDetails = { totalAmount, itemsCount };
+
+      orderDetails = {
+        totalAmount: totalAmount,
+        OrderItems: itemsCount ? Array(itemsCount).fill({}) : [],
+      };
     }
+
+    // liczby pozycji
+    const calculatedItemsCount = orderDetails.OrderItems
+      ? orderDetails.OrderItems.length
+      : itemsCount || 1;
 
     const orderHistoryEntry = {
       orderId,
       totalAmount: orderDetails.totalAmount || totalAmount,
       orderDate: new Date(),
-      itemsCount: orderDetails.itemsCount || itemsCount,
+      itemsCount: calculatedItemsCount,
     };
 
-    await UserPreferences.findOneAndUpdate(
+    console.log("Dodaję do historii:", orderHistoryEntry);
+
+    const updatedPreferences = await UserPreferences.findOneAndUpdate(
       { userId: req.userId },
       {
         $push: {
           orderHistory: orderHistoryEntry,
         },
       },
-      { upsert: true }
+      { upsert: true, new: true }
+    );
+
+    console.log(
+      "Zaktualizowano preferencje:",
+      updatedPreferences?.orderHistory?.length
     );
 
     res.status(200).json({
@@ -161,6 +182,7 @@ exports.addOrderToHistory = async (req, res, next) => {
       data: orderHistoryEntry,
     });
   } catch (error) {
+    console.error("Błąd w addOrderToHistory:", error);
     next(error);
   }
 };

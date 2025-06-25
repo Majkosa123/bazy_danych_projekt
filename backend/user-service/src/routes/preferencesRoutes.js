@@ -9,7 +9,6 @@ const { authenticateToken } = require("../middlewares/auth");
 
 const router = express.Router();
 
-// Wszystkie endpointy wymagają autoryzacji
 router.use(authenticateToken);
 
 // Preferencje użytkownika

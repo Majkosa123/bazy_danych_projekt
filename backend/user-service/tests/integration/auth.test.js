@@ -77,17 +77,17 @@ describe("Authentication Integration Tests", () => {
         lastName: "Kowalski",
       };
 
-      // Pierwszy raz - rejestracja powinna się udać
+      // pierwszy raz - rejestracja powinna się udać
       const firstResponse = await request(app)
         .post("/api/v1/users/register")
         .send(userData);
 
       expect(firstResponse.status).toBe(201);
 
-      // Setup mock dla duplikatu - użytkownik już istnieje
+      // użytkownik już istnieje
       User.findOne.mockResolvedValue({ email: "duplicate@test.com" });
 
-      // Drugi raz - powinno się nie udać (duplikat email)
+      // drugi raz - powinno się nie udać bo duplikat email
       const secondResponse = await request(app)
         .post("/api/v1/users/register")
         .send(userData);
@@ -100,7 +100,7 @@ describe("Authentication Integration Tests", () => {
 
   describe("POST /api/v1/users/login", () => {
     test("should login with correct credentials", async () => {
-      // Najpierw zarejestruj użytkownika
+      // rejstracja
       const userData = {
         email: `login${Date.now()}@test.com`,
         password: "haslo123",
@@ -114,7 +114,7 @@ describe("Authentication Integration Tests", () => {
 
       expect(registerResponse.status).toBe(201);
 
-      // Setup mock dla logowania - użytkownik istnieje
+      // użytkownik istnieje
       User.findOne.mockResolvedValue({
         id: "test-user-id",
         email: userData.email,
@@ -128,7 +128,7 @@ describe("Authentication Integration Tests", () => {
         }),
       });
 
-      // Następnie zaloguj się
+      // logowanie się
       const loginResponse = await request(app)
         .post("/api/v1/users/login")
         .send({
@@ -136,7 +136,6 @@ describe("Authentication Integration Tests", () => {
           password: userData.password,
         });
 
-      // Debug logowania
       if (loginResponse.status !== 200) {
         console.log("Login failed:", loginResponse.body);
       }
@@ -147,7 +146,7 @@ describe("Authentication Integration Tests", () => {
     });
 
     test("should reject wrong password", async () => {
-      // Setup mock dla logowania - użytkownik istnieje
+      // użytkownik istnieje
       User.findOne.mockResolvedValue({
         id: "test-user-id",
         email: "test@test.com",
@@ -158,7 +157,7 @@ describe("Authentication Integration Tests", () => {
         }),
       });
 
-      // Zmień mock bcrypt.compare żeby zwrócił false dla błędnego hasła
+      // Zmiama mock bcrypt.compare żeby zwrócił false dla złego hasła
       const bcrypt = require("bcryptjs");
       bcrypt.compare.mockResolvedValue(false);
 
@@ -172,7 +171,7 @@ describe("Authentication Integration Tests", () => {
     });
 
     test("should reject non-existent email", async () => {
-      // Setup mock - brak użytkownika
+      // brak użytkownika
       User.findOne.mockResolvedValue(null);
 
       const response = await request(app).post("/api/v1/users/login").send({

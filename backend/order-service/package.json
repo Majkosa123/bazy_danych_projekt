@@ -1,27 +1,44 @@
 {
   "name": "order-service",
   "version": "1.0.0",
-  "description": "Serwis zarządzający zamówieniami restauracji",
+  "description": "Serwis zarządzający zamówieniami",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "axios": "^1.3.5",
+    "axios": "^1.10.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
     "helmet": "^6.1.5",
-    "joi": "^17.9.1",
-    "mongoose": "^7.0.3",
+    "joi": "^17.13.3",
+    "mongoose": "^8.16.0",
     "pg": "^8.10.0",
     "sequelize": "^6.30.0"
   },
   "devDependencies": {
-    "jest": "^29.5.0",
-    "nodemon": "^2.0.22"
+    "jest": "^29.7.0",
+    "nodemon": "^2.0.22",
+    "supertest": "^7.1.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "./tests/setup.js"
+    ],
+    "clearMocks": true,
+    "resetMocks": true,
+    "restoreMocks": true
   }
 }

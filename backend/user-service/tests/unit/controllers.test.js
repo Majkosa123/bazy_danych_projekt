@@ -25,8 +25,7 @@ describe("User Controller Tests", () => {
         lastName: "Kowalski",
       };
 
-      // Mock successful responses
-      User.findOne.mockResolvedValue(null); // No existing user
+      User.findOne.mockResolvedValue(null);
       User.create.mockResolvedValue({
         id: "test-user-id",
         email: "test@test.com",

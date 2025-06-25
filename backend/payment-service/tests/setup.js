@@ -1,85 +1,89 @@
-// Mock database connections
-jest.mock("../src/config/database", () => ({
-  sequelize: {
-    define: jest.fn(() => ({
-      findOne: jest.fn(),
-      findByPk: jest.fn(),
-      findAll: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    })),
-    transaction: jest.fn(() => ({
-      commit: jest.fn(),
-      rollback: jest.fn(),
-    })),
-    sync: jest.fn().mockResolvedValue(),
-    authenticate: jest.fn().mockResolvedValue(),
-  },
-  connect: jest.fn().mockResolvedValue(),
-  mongoose: {
-    connect: jest.fn().mockResolvedValue(),
-  },
-}));
+// backend/payment-service/tests/setup.js
 
-// Mock Payment models
+// Mock modeli Sequelize
 jest.mock("../src/models/sequelize/payment", () => ({
-  create: jest.fn(),
   findAll: jest.fn(),
   findByPk: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  destroy: jest.fn(),
 }));
 
 jest.mock("../src/models/sequelize/paymentMethod", () => ({
   findAll: jest.fn(),
   findByPk: jest.fn(),
   create: jest.fn(),
+  update: jest.fn(),
+  destroy: jest.fn(),
 }));
 
 jest.mock("../src/models/sequelize/promoCode", () => ({
   findAll: jest.fn(),
   findByPk: jest.fn(),
+  findOne: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
+  destroy: jest.fn(),
+  increment: jest.fn(),
 }));
 
-// Mock PaymentReceipt (MongoDB)
+// Mock modeli mongoose
 jest.mock("../src/models/mongoose/paymentReceipt", () => ({
   create: jest.fn(),
   findOne: jest.fn(),
+  findById: jest.fn(),
 }));
 
-// Mock external services
+// Mock zewnętrznych serwisów
 jest.mock("../src/services/orderService", () => ({
   getOrderById: jest.fn(),
   updateOrderStatus: jest.fn(),
 }));
 
 jest.mock("../src/services/paymentGateway", () => ({
-  processCardPayment: jest.fn(),
-  processCashPayment: jest.fn(),
+  processPayment: jest.fn(),
 }));
 
 jest.mock("../src/services/userService", () => ({
-  addLoyaltyPointsForOrder: jest.fn(),
+  addLoyaltyPoints: jest.fn(),
 }));
 
 // Mock JWT
 jest.mock("jsonwebtoken", () => ({
-  sign: jest.fn().mockReturnValue("fake-jwt-token"),
-  verify: jest.fn().mockReturnValue({ userId: "test-user-id" }),
+  verify: jest.fn(),
+  sign: jest.fn(),
 }));
 
-// Mock axios
-jest.mock("axios", () => ({
-  get: jest.fn().mockResolvedValue({ data: { data: { id: "order-1" } } }),
-  post: jest.fn().mockResolvedValue({ data: { success: true } }),
-  patch: jest.fn().mockResolvedValue({ data: { success: true } }),
+// Mock bazy danych
+jest.mock("../src/config/database", () => ({
+  sequelize: {
+    authenticate: jest.fn().mockResolvedValue(true),
+    sync: jest.fn().mockResolvedValue(true),
+    close: jest.fn().mockResolvedValue(true),
+    transaction: jest.fn().mockResolvedValue({
+      commit: jest.fn(),
+      rollback: jest.fn(),
+    }),
+  },
+  connect: jest.fn().mockResolvedValue(true),
 }));
 
-global.console.error = jest.fn();
-global.console.log = jest.fn();
+// Zmienne środowiskowe dla testów
 process.env.NODE_ENV = "test";
-process.env.JWT_SECRET = "test_secret";
+process.env.JWT_SECRET = "test-secret";
+process.env.ORDER_SERVICE_URL = "http://localhost:3002/api/v1";
 
+// Globalne przed każdym testem
 beforeEach(() => {
   jest.clearAllMocks();
 });
+
+// Wyłącz logi podczas testów
+global.console = {
+  ...console,
+  log: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  info: jest.fn(),
+  debug: jest.fn(),
+};

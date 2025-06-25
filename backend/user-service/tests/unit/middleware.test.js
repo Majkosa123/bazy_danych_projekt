@@ -1,6 +1,5 @@
 describe("Middleware Tests", () => {
   describe("serviceAuthOnly", () => {
-    // Test logiki middleware bez importu - testujemy bezpośrednio funkcjonalność
     test("should allow access with valid service key", () => {
       const serviceAuthOnly = (req, res, next) => {
         const serviceKey = req.headers["x-service-auth"];

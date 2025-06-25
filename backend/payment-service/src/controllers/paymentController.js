@@ -168,6 +168,15 @@ exports.processPayment = async (req, res, next) => {
           finalAmount,
           orderId
         );
+        await userService.addOrderToHistory(
+          userId,
+          {
+            orderId,
+            totalAmount: finalAmount,
+            itemsCount: order.OrderItems.length,
+          },
+          req.headers.authorization
+        );
       }
 
       res.status(200).json({
